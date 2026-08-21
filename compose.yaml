@@ -1,0 +1,46 @@
+name: medimate
+
+services:
+  db:
+    build:
+      context: .
+      dockerfile: docker/postgres/Dockerfile
+    container_name: medimate-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-medimate}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medimate}
+      POSTGRES_DB: ${POSTGRES_DB:-medimate}
+    ports:
+      - "5432:5432" 
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medimate} -d ${POSTGRES_DB:-medimate}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: medimate-app
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-medimate}:${POSTGRES_PASSWORD:-medimate}@db:5432/${POSTGRES_DB:-medimate}
+    volumes:
+      - .:/app # hot reload
+      - /app/node_modules # keep container deps out of the bind mount
+      - /app/.next # keep container build artifacts 
+    depends_on:
+      db:
+        condition: service_healthy
+    # Regenerate the client against the bind-mounted schema (needs no
+    # DATABASE_URL), apply migrations, then start. migrate deploy is
+    # non-interactive and idempotent — safe at container start.
+    command: sh -c "npx prisma generate && npx prisma migrate deploy && pnpm dev"
+
+volumes:
+  pgdata:

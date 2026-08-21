@@ -1,0 +1,14 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Test if postrgres and prisma works. Delete when Frank applies the actual schema
+model TestTable {
+  id   String  @id @default(uuid()) @db.Uuid
+  name String?
+}

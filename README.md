@@ -24,3 +24,57 @@ git commit -m "refactor: Simplified backend logic for changing membership"
 
 - Formatting is already handled using Biome. Any code committed will be formatted automatically.
 
+# Local Development With Docker
+
+## Prerequisites
+
+- Docker with Compose v2 (`docker compose version`)
+
+## Setup
+
+```bash
+cp .env.example .env      # required for host-side Prisma tooling (studio/migrate)
+docker compose up --build -d
+```
+
+- App: http://localhost:3000
+- Postgres: `localhost:5432`
+
+The `app` service waits for the database healthcheck, then runs
+`prisma migrate deploy` (applies `prisma/migrations/`) before starting
+`next dev`.
+
+## Credentials
+
+Defaults (overridable by editing values in `.env`):
+
+| Variable          | Default   |
+| ----------------- | --------- |
+| `POSTGRES_USER`   | `medimate`|
+| `POSTGRES_PASSWORD` | `medimate`|
+| `POSTGRES_DB`     | `medimate`|
+| `DATABASE_URL` (host) | `postgresql://medimate:medimate@localhost:5432/medimate`|
+
+Inside the container the app uses `DATABASE_URL=postgresql://…@db:5432/…`
+(`db` is the compose service name), set in `compose.yaml`.
+
+## Useful commands
+
+```bash
+docker compose logs -f app        # follow app logs
+docker compose ps                 # status / health
+docker compose exec db psql -U medimate -d medimate   # psql shell
+docker compose exec app npx prisma migrate deploy     # apply migrations (also runs on start)
+docker compose run --rm app npx prisma migrate dev    # create a new migration from schema changes
+docker compose down               # stop (keeps the pgdata volume)
+docker compose down -v            # stop and delete the database volume
+```
+
+## Prisma
+
+- Edit models in `schema.prisma`, then create a migration with
+  `prisma migrate dev --name <name>` (or `db:migrate` in package.json).
+- The Prisma client is generated into `lib/generated/prisma` by
+  `prisma generate` — it runs automatically on install (postinstall).
+- Host-side tooling (e.g. `prisma studio`) uses the `DATABASE_URL` in `.env`
+  and talks to the compose db on `localhost:5432`.
