@@ -21,15 +21,29 @@ services:
       retries: 10
       start_period: 10s
 
+  mailpit:
+    image: axllent/mailpit:v1.27.4
+    container_name: medimate-mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
   app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: medimate-app
+    env_file:
+      - .env
     ports:
       - "3000:3000"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-medimate}:${POSTGRES_PASSWORD:-medimate}@db:5432/${POSTGRES_DB:-medimate}
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      SMTP_SECURE: "false"
+      SMTP_USER: ""
+      SMTP_PASSWORD: ""
     volumes:
       - .:/app # hot reload
       - /app/node_modules # keep container deps out of the bind mount
@@ -37,6 +51,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
     # Regenerate the client against the bind-mounted schema (needs no
     # DATABASE_URL), apply migrations, then start. migrate deploy is
     # non-interactive and idempotent — safe at container start.

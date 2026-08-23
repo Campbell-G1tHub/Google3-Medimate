@@ -39,6 +39,7 @@ docker compose up --build -d
 
 - App: http://localhost:3000
 - Postgres: `localhost:5432`
+- Mailpit inbox: http://localhost:8025
 
 The `app` service waits for the database healthcheck, then runs
 `prisma migrate deploy` (applies `prisma/migrations/`) before starting
@@ -78,3 +79,36 @@ docker compose down -v            # stop and delete the database volume
   `prisma generate` — it runs automatically on install (postinstall).
 - Host-side tooling (e.g. `prisma studio`) uses the `DATABASE_URL` in `.env`
   and talks to the compose db on `localhost:5432`.
+
+# Authentication
+
+Authentication uses Better Auth with the existing Prisma client. Copy the Better Auth and SMTP
+variables from `.env.example` into `.env`, then replace the example secret and mail server values.
+
+Generate a development secret with:
+
+```bash
+openssl rand -base64 32
+```
+
+The auth API is available at `/api/auth/*`. Client Components can use the exports from
+`lib/auth-client.ts`:
+
+```tsx
+"use client"
+
+import { signIn, signOut, signUp, useSession } from "@/lib/auth-client"
+```
+
+Email/password sign-up requires email verification. The verification link is sent through the SMTP
+server configured by `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, and `SMTP_PASSWORD`.
+
+For local development, Docker Compose starts Mailpit and routes authentication emails to its inbox.
+After all services are running, execute the complete sign-up and session smoke test with:
+
+```bash
+pnpm test:auth
+```
+
+The test covers sign-up, blocked login before verification, an incorrect password, the email
+verification link, login, session retrieval, logout, and session revocation.
