@@ -1,7 +1,11 @@
+import "dotenv/config"
+import { createEmailVerificationToken } from "better-auth/api"
+
 const appUrl = process.env.AUTH_TEST_APP_URL ?? "http://localhost:3000"
 const mailpitUrl = process.env.AUTH_TEST_MAILPIT_URL ?? "http://localhost:8025"
 const email = `auth-smoke-${Date.now()}@medimate.local`
 const password = "MediMate-test-password-2026"
+const authSecret = process.env.BETTER_AUTH_SECRET
 
 function assert(condition, message) {
 	if (!condition) {
@@ -62,9 +66,9 @@ async function waitForVerificationUrl() {
 			const message = result.messages?.[0]
 
 			if (message?.ID) {
-				const textResponse = await fetch(`${mailpitUrl}/api/v1/message/${message.ID}/text`)
-				const text = await textResponse.text()
-				const url = text.match(/https?:\/\/\S+\/api\/auth\/verify-email\?\S+/)?.[0]
+				const messageResponse = await fetch(`${mailpitUrl}/api/v1/message/${message.ID}`)
+				const messageBody = await messageResponse.json()
+				const url = messageBody.Text?.match(/https?:\/\/\S+\/api\/auth\/verify-email\?\S+/)?.[0]
 
 				if (url) {
 					return url
@@ -95,6 +99,20 @@ await expectFailure(
 		body: { email, password: "incorrect-password" },
 	}),
 	"sign in with incorrect password",
+)
+
+assert(authSecret, "BETTER_AUTH_SECRET is required to test expired verification links")
+
+const expiredToken = await createEmailVerificationToken(authSecret, email, undefined, -60)
+const expiredVerification = await expectFailure(
+	await request(`/api/auth/verify-email?token=${expiredToken}`),
+	"expired email verification",
+)
+assert(expiredVerification?.code === "TOKEN_EXPIRED", "expired link returned the wrong error")
+
+await expectFailure(
+	await request("/api/auth/sign-in/email", { body: { email, password } }),
+	"sign in after expired verification",
 )
 
 const verificationUrl = await waitForVerificationUrl()

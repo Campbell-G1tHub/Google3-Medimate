@@ -110,5 +110,6 @@ After all services are running, execute the complete sign-up and session smoke t
 pnpm test:auth
 ```
 
-The test covers sign-up, blocked login before verification, an incorrect password, the email
-verification link, login, session retrieval, logout, and session revocation.
+The test covers sign-up, blocked login before verification, an incorrect password, an expired email
+verification link, successful email verification, login, session retrieval, logout, and session
+revocation.
