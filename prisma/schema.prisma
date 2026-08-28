@@ -7,13 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-// Test if postrgres and prisma works. Delete when Frank applies the actual schema
-model TestTable {
-  id   String  @id @default(uuid()) @db.Uuid
-  name String?
-}
-
-
 model account {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id String @db.Uuid
@@ -37,32 +30,33 @@ model documents {
   file_name String
   file_url String
   uploaded_at DateTime @default(now()) @db.Timestamptz(0)
-  volunteer_profiles volunteer_profiles @relation(fields: [volunteer_profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "documents_volunteer_profile_id_foreign")
+  user_details user_details @relation(fields: [volunteer_profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "documents_volunteer_profile_id_foreign")
 }
 
-model emergency_contacts {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  volunteer_profile_id String @unique(map: "emergency_contacts_volunteer_profile_id_unique") @db.Uuid
-  full_name String
-  relationship String
-  phone_number String
-  volunteer_profiles volunteer_profiles @relation(fields: [volunteer_profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "emergency_contacts_volunteer_profile_id_foreign")
+model notification_premission {
+  id String @id @db.Uuid
+  user_id String @db.Uuid
+  endpoint String
+  p256dh String
+  auth String
+  created_at DateTime @db.Timestamptz(0)
+  user user @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notification_premission_user_id_foreign")
 }
 
-model notification_deliveries {
+model notification_recipient {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   notification_id String @db.Uuid
   volunteer_profile_id String @db.Uuid
   delivery_medium String @db.VarChar(255)
-  notifications notifications @relation(fields: [notification_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notification_deliveries_notification_id_foreign")
-  volunteer_profiles volunteer_profiles @relation(fields: [volunteer_profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notification_deliveries_volunteer_profile_id_foreign")
+  notifications notifications @relation(fields: [notification_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notification_recipient_notification_id_foreign")
+  user_details user_details @relation(fields: [volunteer_profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notification_recipient_volunteer_profile_id_foreign")
 }
 
 model notifications {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   post_id String @db.Uuid
   created_at DateTime @default(now()) @db.Timestamptz(0)
-  notification_deliveries notification_deliveries[]
+  notification_recipient notification_recipient[]
   posts posts @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notifications_post_id_foreign")
 }
 
@@ -84,7 +78,7 @@ model referees {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   volunteer_profile_id String @db.Uuid
   details String
-  volunteer_profiles volunteer_profiles @relation(fields: [volunteer_profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "referees_volunteer_profile_id_foreign")
+  user_details user_details @relation(fields: [volunteer_profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "referees_volunteer_profile_id_foreign")
 }
 
 model session {
@@ -108,10 +102,43 @@ model user {
   created_at DateTime @default(now()) @db.Timestamptz(0)
   updated_at DateTime @default(now()) @db.Timestamptz(0)
   account account[]
+  notification_premission notification_premission[]
   posts posts[]
   session session[]
+  user_details user_details?
   volunteer_opportunities volunteer_opportunities[]
-  volunteer_profiles volunteer_profiles?
+}
+
+model user_details {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id String @unique(map: "user_details_user_id_unique") @db.Uuid
+  first_name String
+  last_name String
+  address String
+  mobile String
+  date_of_birth DateTime @db.Date
+  motivation String
+  skills_and_strengths String
+  medical_conditions String?
+  car_type String?
+  frequent_suburbs String?
+  frequency String @db.VarChar(255)
+  availability String @db.VarChar(255)
+  agreement_accepted Boolean
+  agreement_accepted_at DateTime? @db.Timestamptz(0)
+  police_check_consent Boolean
+  newsletter_opt_in Boolean
+  referral_sources String @db.VarChar(255)
+  created_at DateTime @default(now()) @db.Timestamptz(0)
+  emergency_contact_name String
+  emergency_contact_relationship String
+  emergency_contact_phone String
+  documents documents[]
+  notification_recipient notification_recipient[]
+  referees referees[]
+  user user @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_details_user_id_foreign")
+  volunteer_category_selection volunteer_category_selection[]
+  volunteer_opportunity_participants volunteer_opportunity_participants[]
 }
 
 model verification {
@@ -137,7 +164,7 @@ model volunteer_category_selection {
   volunteer_profile_id String @db.Uuid
   category_id String @db.Uuid
   volunteer_categories volunteer_categories @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "volunteer_category_selection_category_id_foreign")
-  volunteer_profiles volunteer_profiles @relation(fields: [volunteer_profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "volunteer_category_selection_volunteer_profile_id_foreign")
+  user_details user_details @relation(fields: [volunteer_profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "volunteer_category_selection_volunteer_profile_id_foreign")
 }
 
 model volunteer_opportunities {
@@ -165,35 +192,5 @@ model volunteer_opportunity_participants {
   status String @default("INTERESTED") @db.VarChar(255)
   created_at DateTime @default(now()) @db.Timestamptz(0)
   volunteer_opportunities volunteer_opportunities @relation(fields: [volunteer_opportunity_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "volunteer_opportunity_participants_volunteer_opportunity_id_for")
-  volunteer_profiles volunteer_profiles @relation(fields: [volunteer_profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "volunteer_opportunity_participants_volunteer_profile_id_foreign")
-}
-
-model volunteer_profiles {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id String @unique(map: "volunteer_profiles_user_id_unique") @db.Uuid
-  first_name String
-  last_name String
-  address String
-  mobile String
-  date_of_birth DateTime @db.Date
-  motivation String
-  skills_and_strengths String
-  medical_conditions String?
-  car_type String?
-  frequent_suburbs String?
-  frequency String @db.VarChar(255)
-  availability String @db.VarChar(255)
-  agreement_accepted Boolean
-  agreement_accepted_at DateTime? @db.Timestamptz(0)
-  police_check_consent Boolean
-  newsletter_opt_in Boolean
-  referral_sources String @db.VarChar(255)
-  created_at DateTime @default(now()) @db.Timestamptz(0)
-  documents documents[]
-  emergency_contacts emergency_contacts?
-  notification_deliveries notification_deliveries[]
-  referees referees[]
-  volunteer_category_selection volunteer_category_selection[]
-  volunteer_opportunity_participants volunteer_opportunity_participants[]
-  user user @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "volunteer_profiles_user_id_foreign")
+  user_details user_details @relation(fields: [volunteer_profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "volunteer_opportunity_participants_volunteer_profile_id_foreign")
 }
