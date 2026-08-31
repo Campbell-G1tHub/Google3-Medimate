@@ -10,7 +10,7 @@
 	},
 	"formatter": {
 		"enabled": true,
-        "lineWidth": 100,
+		"lineWidth": 100,
 		"indentStyle": "tab"
 	},
 	"linter": {
@@ -22,14 +22,14 @@
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "double",
-            "semicolons": "asNeeded"
+			"semicolons": "asNeeded"
 		}
 	},
-    "css": {
-        "parser": {
-            "tailwindDirectives": true
-        }
-    },
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
+	},
 	"assist": {
 		"enabled": true,
 		"actions": {
