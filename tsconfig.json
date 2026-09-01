@@ -39,6 +39,7 @@
     "public/sw.js"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "prisma_test.ts"
   ]
 }

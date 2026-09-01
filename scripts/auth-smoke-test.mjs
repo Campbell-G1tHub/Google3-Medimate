@@ -4,7 +4,9 @@ import { createEmailVerificationToken } from "better-auth/api"
 const appUrl = process.env.AUTH_TEST_APP_URL ?? "http://localhost:3000"
 const mailpitUrl = process.env.AUTH_TEST_MAILPIT_URL ?? "http://localhost:8025"
 const email = `auth-smoke-${Date.now()}@medimate.local`
-const password = "MediMate-test-password-2026"
+const originalPassword = "MediMate-test-password-2026"
+const linkResetPassword = "MediMate-link-reset-2026"
+const otpResetPassword = "MediMate-otp-reset-2026"
 const authSecret = process.env.BETTER_AUTH_SECRET
 
 function assert(condition, message) {
@@ -14,7 +16,7 @@ function assert(condition, message) {
 }
 
 async function request(path, { body, cookie, redirect = "follow" } = {}) {
-	const response = await fetch(`${appUrl}${path}`, {
+	return fetch(`${appUrl}${path}`, {
 		method: body ? "POST" : "GET",
 		headers: {
 			...(body ? { "content-type": "application/json" } : {}),
@@ -24,8 +26,6 @@ async function request(path, { body, cookie, redirect = "follow" } = {}) {
 		body: body ? JSON.stringify(body) : undefined,
 		redirect,
 	})
-
-	return response
 }
 
 async function responseBody(response) {
@@ -55,7 +55,7 @@ function cookiesFrom(response) {
 	return values.map((value) => value.split(";", 1)[0]).join("; ")
 }
 
-async function waitForVerificationUrl() {
+async function waitForEmail(subject, extractValue) {
 	for (let attempt = 0; attempt < 30; attempt += 1) {
 		const search = await fetch(
 			`${mailpitUrl}/api/v1/search?query=${encodeURIComponent(`to:${email}`)}`,
@@ -63,15 +63,21 @@ async function waitForVerificationUrl() {
 
 		if (search.ok) {
 			const result = await search.json()
-			const message = result.messages?.[0]
 
-			if (message?.ID) {
+			for (const message of result.messages ?? []) {
+				if (!message.ID) {
+					continue
+				}
+
 				const messageResponse = await fetch(`${mailpitUrl}/api/v1/message/${message.ID}`)
 				const messageBody = await messageResponse.json()
-				const url = messageBody.Text?.match(/https?:\/\/\S+\/api\/auth\/verify-email\?\S+/)?.[0]
 
-				if (url) {
-					return url
+				if (messageBody.Subject === subject) {
+					const value = extractValue(messageBody.Text ?? "")
+
+					if (value) {
+						return value
+					}
 				}
 			}
 		}
@@ -79,26 +85,39 @@ async function waitForVerificationUrl() {
 		await new Promise((resolve) => setTimeout(resolve, 500))
 	}
 
-	throw new Error(`No verification email arrived for ${email}`)
+	throw new Error(`No ${subject} email arrived for ${email}`)
+}
+
+function urlFromEmail(text) {
+	return text.match(/https?:\/\/\S+/)?.[0]
+}
+
+function otpFromEmail(text) {
+	return text.match(/\b\d{6}\b/)?.[0]
+}
+
+function incorrectOtp(otp) {
+	const finalDigit = Number(otp.at(-1))
+	return `${otp.slice(0, -1)}${(finalDigit + 1) % 10}`
 }
 
 console.log("RUNNING SMOKE TESTS")
 
-console.log("TEST 1: Hitting email sign up endpoint should succeed");
+console.log("TEST 1: Hitting email sign up endpoint should succeed")
 await expectSuccess(
 	await request("/api/auth/sign-up/email", {
-		body: { name: "Auth Smoke Test", email, password },
+		body: { name: "Auth Smoke Test", email, password: originalPassword },
 	}),
 	"sign up",
 )
 
-console.log("TEST 2: Email sign in before verification should fail");
+console.log("TEST 2: Email sign in before verification should fail")
 await expectFailure(
-	await request("/api/auth/sign-in/email", { body: { email, password } }),
+	await request("/api/auth/sign-in/email", { body: { email, password: originalPassword } }),
 	"sign in before verification",
 )
 
-console.log("TEST 3: Sign in should fail if password is incorrect");
+console.log("TEST 3: Sign in should fail if password is incorrect")
 await expectFailure(
 	await request("/api/auth/sign-in/email", {
 		body: { email, password: "incorrect-password" },
@@ -115,44 +134,145 @@ const expiredVerification = await expectFailure(
 )
 assert(expiredVerification?.code === "TOKEN_EXPIRED", "expired link returned the wrong error")
 
-console.log("TEST 5: Sign in should fail if verification expires")
-await expectFailure(
-	await request("/api/auth/sign-in/email", { body: { email, password } }),
-	"sign in after expired verification",
-)
-
-console.log("TEST 6: Sign in after verification should succeed")
-const verificationUrl = await waitForVerificationUrl()
+const verificationUrl = await waitForEmail("Verify your MediMate email address", urlFromEmail)
 const verificationResponse = await fetch(verificationUrl, { redirect: "manual" })
 assert(
 	verificationResponse.ok || verificationResponse.status === 302,
 	`email verification failed (${verificationResponse.status})`,
 )
 
-const signInResponse = await request("/api/auth/sign-in/email", {
-	body: { email, password },
+const firstSignIn = await request("/api/auth/sign-in/email", {
+	body: { email, password: originalPassword },
 })
-await expectSuccess(signInResponse, "sign in after verification")
+await expectSuccess(firstSignIn, "sign in after verification")
 
+const firstCookie = cookiesFrom(firstSignIn)
+assert(firstCookie, "sign in did not return a session cookie")
 
-console.log("TEST 7: get-session endpoint should succeed and return the correct user")
-const cookie = cookiesFrom(signInResponse)
-assert(cookie, "sign in did not return a session cookie")
-
-const session = await expectSuccess(
-	await request("/api/auth/get-session", { cookie }),
+const firstSession = await expectSuccess(
+	await request("/api/auth/get-session", { cookie: firstCookie }),
 	"get session",
 )
-assert(session?.user?.email === email, "session belongs to the wrong user")
+assert(firstSession?.user?.email === email, "session belongs to the wrong user")
 
-console.log("TEST 8: Signing out should succeed")
-await expectSuccess(await request("/api/auth/sign-out", { body: {}, cookie }), "sign out")
+await expectSuccess(
+	await request("/api/auth/sign-out", { body: {}, cookie: firstCookie }),
+	"sign out",
+)
 
 console.log("TEST 9: get-session endpoint should succeed and return nothing if signed out")
 const signedOutSession = await expectSuccess(
-	await request("/api/auth/get-session", { cookie }),
+	await request("/api/auth/get-session", { cookie: firstCookie }),
 	"get session after sign out",
 )
 assert(!signedOutSession, "session is still active after sign out")
+
+await expectSuccess(
+	await request("/api/auth/request-password-reset", {
+		body: { email, redirectTo: "/reset-password" },
+	}),
+	"request password reset link",
+)
+
+const passwordResetUrl = await waitForEmail("Reset your MediMate password", urlFromEmail)
+const resetCallback = await fetch(passwordResetUrl, { redirect: "manual" })
+assert(
+	resetCallback.status === 302,
+	`password reset link did not redirect (${resetCallback.status})`,
+)
+
+const resetLocation = resetCallback.headers.get("location")
+const resetToken = resetLocation ? new URL(resetLocation, appUrl).searchParams.get("token") : null
+assert(resetToken, "password reset redirect did not contain a token")
+
+await expectSuccess(
+	await request("/api/auth/reset-password", {
+		body: { newPassword: linkResetPassword, token: resetToken },
+	}),
+	"reset password with link",
+)
+
+await expectFailure(
+	await request("/api/auth/reset-password", {
+		body: { newPassword: "MediMate-reused-token-2026", token: resetToken },
+	}),
+	"reuse consumed password reset link",
+)
+
+await expectFailure(
+	await request("/api/auth/sign-in/email", { body: { email, password: originalPassword } }),
+	"sign in with old password after link reset",
+)
+
+await expectSuccess(
+	await request("/api/auth/sign-in/email", { body: { email, password: linkResetPassword } }),
+	"sign in after link password reset",
+)
+
+await expectSuccess(
+	await request("/api/auth/email-otp/send-verification-otp", {
+		body: { email, type: "sign-in" },
+	}),
+	"request one-time login code",
+)
+
+const signInOtp = await waitForEmail("Your MediMate one-time login code", otpFromEmail)
+
+await expectFailure(
+	await request("/api/auth/sign-in/email-otp", {
+		body: { email, otp: incorrectOtp(signInOtp) },
+	}),
+	"sign in with incorrect one-time code",
+)
+
+const otpSignIn = await request("/api/auth/sign-in/email-otp", {
+	body: { email, otp: signInOtp },
+})
+await expectSuccess(otpSignIn, "sign in with one-time code")
+
+const otpCookie = cookiesFrom(otpSignIn)
+assert(otpCookie, "one-time login did not return a session cookie")
+await expectSuccess(
+	await request("/api/auth/get-session", { cookie: otpCookie }),
+	"get one-time login session",
+)
+await expectSuccess(
+	await request("/api/auth/sign-out", { body: {}, cookie: otpCookie }),
+	"sign out one-time login session",
+)
+
+await expectFailure(
+	await request("/api/auth/sign-in/email-otp", { body: { email, otp: signInOtp } }),
+	"reuse consumed one-time code",
+)
+
+await expectSuccess(
+	await request("/api/auth/email-otp/request-password-reset", { body: { email } }),
+	"request password reset code",
+)
+
+const passwordResetOtp = await waitForEmail("Your MediMate password reset code", otpFromEmail)
+await expectSuccess(
+	await request("/api/auth/email-otp/reset-password", {
+		body: { email, otp: passwordResetOtp, password: otpResetPassword },
+	}),
+	"reset password with one-time code",
+)
+
+await expectFailure(
+	await request("/api/auth/sign-in/email", { body: { email, password: linkResetPassword } }),
+	"sign in with old password after code reset",
+)
+
+const finalSignIn = await request("/api/auth/sign-in/email", {
+	body: { email, password: otpResetPassword },
+})
+await expectSuccess(finalSignIn, "sign in after code password reset")
+
+const finalCookie = cookiesFrom(finalSignIn)
+await expectSuccess(
+	await request("/api/auth/sign-out", { body: {}, cookie: finalCookie }),
+	"final sign out",
+)
 
 console.log(`Authentication smoke test passed for ${email}`)

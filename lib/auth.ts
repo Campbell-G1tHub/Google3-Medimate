@@ -1,11 +1,26 @@
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
-import { sendVerificationEmail } from "@/lib/auth-email"
+import { emailOTP } from "better-auth/plugins"
+import {
+	sendOneTimePasswordEmail,
+	sendPasswordResetEmail,
+	sendVerificationEmail,
+} from "@/lib/auth-email"
 import { prisma } from "@/lib/prisma"
 
+const trustedOrigins = process.env.AUTH_TRUSTED_ORIGINS?.split(",")
+	.map((origin) => origin.trim())
+	.filter(Boolean)
+
 export const auth = betterAuth({
+	trustedOrigins,
 	user: {
-		modelName: "volunteer"
+		modelName: "volunteer",
+	},
+	verification: {
+		fields: {
+			value: "token",
+		},
 	},
 	advanced: {
 		database: {
@@ -18,6 +33,11 @@ export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
 		requireEmailVerification: true,
+		resetPasswordTokenExpiresIn: 60 * 60,
+		revokeSessionsOnPasswordReset: true,
+		sendResetPassword: async ({ user, url }) => {
+			await sendPasswordResetEmail(user.email, url)
+		},
 	},
 	emailVerification: {
 		sendOnSignUp: true,
@@ -27,4 +47,15 @@ export const auth = betterAuth({
 			await sendVerificationEmail(user.email, url)
 		},
 	},
+	plugins: [
+		emailOTP({
+			disableSignUp: true,
+			expiresIn: 10 * 60,
+			allowedAttempts: 3,
+			storeOTP: "hashed",
+			sendVerificationOTP: async ({ email, otp, type }) => {
+				await sendOneTimePasswordEmail(email, otp, type)
+			},
+		}),
+	],
 })

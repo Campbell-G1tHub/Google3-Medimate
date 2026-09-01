@@ -82,8 +82,9 @@ docker compose down               # stop
 
 # Authentication
 
-Authentication uses Better Auth with the existing Prisma client. Copy the Better Auth and SMTP
-variables from `.env.example` into `.env`, then replace the example secret and mail server values.
+Authentication uses Better Auth with the shared Prisma client and Frank's application schema. Copy
+the Better Auth and SMTP variables from `.env.example` into `.env`, then replace the example secret
+and mail server values.
 
 Generate a development secret with:
 
@@ -91,17 +92,39 @@ Generate a development secret with:
 openssl rand -base64 32
 ```
 
-The auth API is available at `/api/auth/*`. Client Components can use the exports from
-`lib/auth-client.ts`:
+The auth API is available at `/api/auth/*`. The connected frontend routes are:
+
+- `/sign-up`: email/password registration and verification email
+- `/login`: verified email/password sign-in
+- `/forgot-password`: reset by email link or one-time code
+- `/reset-password`: password reset link callback
+- `/one-time-login`: six-digit passwordless sign-in
+- `/account`: session display and sign-out
+
+Client Components can use the exports from `lib/auth-client.ts`:
 
 ```tsx
 "use client"
 
-import { signIn, signOut, signUp, useSession } from "@/lib/auth-client"
+import {
+  authClient,
+  requestPasswordReset,
+  resetPassword,
+  signIn,
+  signOut,
+  signUp,
+  useSession,
+} from "@/lib/auth-client"
 ```
 
-Email/password sign-up requires email verification. The verification link is sent through the SMTP
-server configured by `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, and `SMTP_PASSWORD`.
+Email/password sign-up requires email verification. Verification, password reset, and one-time
+login emails are sent through the SMTP server configured by `SMTP_HOST`, `SMTP_PORT`,
+`SMTP_SECURE`, `SMTP_AUTH_REQUIRED`, `SMTP_USER`, `SMTP_PASSWORD`, and `AUTH_EMAIL_FROM`.
+
+Production SMTP should set `SMTP_AUTH_REQUIRED=true` and provide both credential variables. An
+unauthenticated local relay such as Mailpit must opt out explicitly with
+`SMTP_AUTH_REQUIRED=false`. Add every deployed frontend origin to the comma-separated
+`AUTH_TRUSTED_ORIGINS` value.
 
 For local development, Docker Compose starts Mailpit and routes authentication emails to its inbox.
 After all services are running, execute the complete sign-up and session smoke test with:
@@ -110,6 +133,6 @@ After all services are running, execute the complete sign-up and session smoke t
 pnpm test:auth
 ```
 
-The test covers sign-up, blocked login before verification, an incorrect password, an expired email
-verification link, successful email verification, login, session retrieval, logout, and session
-revocation.
+The test covers sign-up, blocked login before verification, incorrect credentials, expired email
+verification, successful verification, password reset, one-time login, session retrieval, logout,
+and session revocation.
