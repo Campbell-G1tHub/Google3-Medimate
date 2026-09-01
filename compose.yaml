@@ -38,6 +38,7 @@ services:
     ports:
       - "3000:3000"
     environment:
+      CI: "true"
       DATABASE_URL: postgresql://${POSTGRES_USER:-medimate}:${POSTGRES_PASSWORD:-medimate}@db:5432/${POSTGRES_DB:-medimate}
       SMTP_HOST: mailpit
       SMTP_PORT: 1025
