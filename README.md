@@ -62,13 +62,13 @@ Inside the container the app uses `DATABASE_URL=postgresql://…@db:5432/…`
 ## Useful commands
 
 ```bash
+pnpm run db:generate # regenerate prisma client to use in application code 
+pnpm run db:migrate # Apply migrations to your local DB
 docker compose logs -f app        # follow app logs
 docker compose ps                 # status / health
+docker compose up db # run database only
 docker compose exec db psql -U medimate -d medimate   # psql shell
-docker compose exec app npx prisma migrate deploy     # apply migrations (also runs on start)
-docker compose run --rm app npx prisma migrate dev    # create a new migration from schema changes
-docker compose down               # stop (keeps the pgdata volume)
-docker compose down -v            # stop and delete the database volume
+docker compose down               # stop 
 ```
 
 ## Prisma

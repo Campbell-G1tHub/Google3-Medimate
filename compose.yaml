@@ -11,11 +11,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medimate}
       POSTGRES_DB: ${POSTGRES_DB:-medimate}
     ports:
-      - "5432:5432" 
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medimate} -d ${POSTGRES_DB:-medimate}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medimate} -d ${POSTGRES_DB:-medimate}" ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -47,8 +47,8 @@ services:
       SMTP_PASSWORD: ""
     volumes:
       - .:/app # hot reload
-      - /app/node_modules # keep container deps out of the bind mount
-      - /app/.next # keep container build artifacts 
+      - node_modules:/app/node_modules # keep container deps out of the bind mount
+      - next_cache:/app/.next # keep container build artifacts 
     depends_on:
       db:
         condition: service_healthy
@@ -57,7 +57,10 @@ services:
     # Regenerate the client against the bind-mounted schema (needs no
     # DATABASE_URL), apply migrations, then start. migrate deploy is
     # non-interactive and idempotent — safe at container start.
-    command: sh -c "npx prisma generate && npx prisma migrate deploy && pnpm dev"
+    command: sh -c "pnpm dev"
 
 volumes:
   pgdata:
+  node_modules:
+  next_cache:
+
