@@ -4,9 +4,12 @@ import { sendVerificationEmail } from "@/lib/auth-email"
 import { prisma } from "@/lib/prisma"
 
 export const auth = betterAuth({
+	user: {
+		modelName: "volunteer"
+	},
 	advanced: {
 		database: {
-			generateId: "uuid",
+			generateId: false,
 		},
 	},
 	database: prismaAdapter(prisma, {

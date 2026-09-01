@@ -77,16 +77,17 @@ model Referees {
 }
 
 model Session {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  volunteerId String    @map("volunteer_id") @db.Uuid
-  token       String    @unique(map: "session_token_unique")
-  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(0)
-  ipAddress   String?   @map("ip_address") @db.VarChar(45)
-  userAgent   String?   @map("user_agent")
-  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz(0)
-  updatedAt   DateTime? @default(now()) @map("updated_at") @db.Timestamptz(0)
-  user        Volunteer @relation(fields: [volunteerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "session_volunteer_id_foreign")
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  token     String    @unique(map: "session_token_unique")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(0)
+  ipAddress String?   @map("ip_address") @db.VarChar(45)
+  userAgent String?   @map("user_agent")
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(0)
+  updatedAt DateTime? @default(now()) @map("updated_at") @db.Timestamptz(0)
+  user      Volunteer @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "session_volunteer_id_foreign")
 
+  @@index([userId])
   @@map("sessions")
 }
 
@@ -99,13 +100,14 @@ model Volunteer {
   id                        String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name                      String
   email                     String                     @unique(map: "volunteer_email_unique")
-  emailVerified             Boolean                    @map("email_verified")
+  emailVerified             Boolean                    @default(false) @map("email_verified")
+  image                     String?
   role                      volunteerRole              @default(VOLUNTEER)
   createdAt                 DateTime                   @default(now()) @map("created_at") @db.Timestamptz(0)
   updatedAt                 DateTime                   @default(now()) @map("updated_at") @db.Timestamptz(0)
-  account                   Account[]
+  accounts                  Account[]
   posts                     Post[]
-  session                   Session[]
+  sessions                  Session[]
   events                    Event[]
   information               VolunteerInformation?
   documents                 Document[]
@@ -119,7 +121,8 @@ model Volunteer {
 
 model Account {
   id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  volunteerId           String    @map("volunteer_id") @db.Uuid
+  userId                String    @map("user_id") @db.Uuid
+  issuer                String
   accountId             String    @map("account_id")
   providerId            String    @map("provider_id")
   accessToken           String?   @map("access_token")
@@ -127,11 +130,14 @@ model Account {
   idToken               String?   @map("id_token")
   accessTokenExpiresAt  DateTime? @map("access_token_expires_at") @db.Timestamptz(0)
   refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at") @db.Timestamptz(0)
+  scope                 String?
   password              String?
   createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(0)
   updatedAt             DateTime  @default(now()) @map("updated_at") @db.Timestamptz(0)
-  creator               Volunteer @relation(fields: [volunteerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_volunteer_id_foreign")
+  user                  Volunteer @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_volunteer_id_foreign")
 
+  @@unique([issuer, accountId])
+  @@index([userId])
   @@map("accounts")
 }
 
@@ -143,6 +149,7 @@ model Verification {
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(0)
   updatedAt  DateTime @default(now()) @map("updated_at") @db.Timestamptz(0)
 
+  @@index([identifier])
   @@map("verifications")
 }
 
