@@ -14,9 +14,9 @@ self.addEventListener('push', (event) => {
     event.waitUntil(self.registration.showNotification(data.title, options))
   }
 })
- 
+
 self.addEventListener('notificationclick', (event) => {
   console.log('Notification click received.')
   event.notification.close()
-  event.waitUntil(clients.openWindow('http://localhost:3000')) // DOTHIS: change url (what URL to show on click)
+  event.waitUntil(self.clients.openWindow('http://localhost:3000')) // DOTHIS: change url (what URL to show on click)
 })

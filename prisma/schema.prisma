@@ -49,6 +49,18 @@ model Notification {
   @@map("notifications")
 }
 
+model Notification_Permission {
+  id          String    @id @db.Uuid
+  volunteerId String    @map("volunteer_id") @db.Uuid
+  endpoint    String
+  p256dh      String
+  auth        String
+  createdAt   DateTime  @map("created_at") @db.Timestamptz(0)
+  volunteer   Volunteer @relation(fields: [volunteerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notification_permission_volunteer_id_foreign")
+
+  @@map("notification_permissions")
+}
+
 model Post {
   id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   eventId         String?         @map("event_id") @db.Uuid
@@ -115,6 +127,7 @@ model Volunteer {
   referees                  Referees[]
   volunteerGroupPreferences VolunteerGroupPreference[]
   eventAttendees            EventAttendee[]
+  notificationPermissions   Notification_Permission[]
 
   @@map("volunteers")
 }
