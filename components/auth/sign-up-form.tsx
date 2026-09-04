@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useState } from "react"
 import { FormAlert } from "@/components/auth/form-alert"
+import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { signUp } from "@/lib/auth-client"
@@ -11,6 +12,8 @@ export function SignUpForm() {
 	const [error, setError] = useState("")
 	const [message, setMessage] = useState("")
 	const [pending, setPending] = useState(false)
+	const [showPassword, setShowPassword] = useState(false)
+	const [showConfirmation, setShowConfirmation] = useState(false)
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
@@ -18,7 +21,6 @@ export function SignUpForm() {
 		setMessage("")
 
 		const form = new FormData(event.currentTarget)
-		const name = String(form.get("name") ?? "").trim()
 		const email = String(form.get("email") ?? "").trim()
 		const password = String(form.get("password") ?? "")
 		const confirmPassword = String(form.get("confirmPassword") ?? "")
@@ -30,7 +32,7 @@ export function SignUpForm() {
 
 		setPending(true)
 		const result = await signUp.email({
-			name,
+			name: email.split("@")[0] || "Medimate volunteer",
 			email,
 			password,
 			callbackURL: "/login?verified=true",
@@ -47,54 +49,108 @@ export function SignUpForm() {
 	}
 
 	return (
-		<>
+		<div className="mx-auto max-w-[17.5rem]">
 			<FormAlert message={error} />
 			<FormAlert message={message} type="success" />
 
-			<form className="space-y-4" onSubmit={handleSubmit}>
+			<form className="space-y-3" onSubmit={handleSubmit}>
 				<Input
-					label="Full name"
-					name="name"
-					autoComplete="name"
-					placeholder="Alex Smith"
-					required
-				/>
-				<Input
-					label="Email address"
+					label="Email"
 					name="email"
 					type="email"
 					autoComplete="email"
-					placeholder="alex@example.com"
+					placeholder="Email address"
+					className="h-10 min-h-10 rounded-none border-neutral/30 bg-base-100 px-2 text-sm font-normal focus:border-secondary focus:outline-none"
+					labelClassName="pb-1 text-sm font-normal"
 					required
 				/>
 				<Input
-					label="Password"
+					label="Create a Password"
 					name="password"
-					type="password"
+					type={showPassword ? "text" : "password"}
 					autoComplete="new-password"
 					minLength={8}
-					hint="Use at least 8 characters."
+					placeholder="Password"
+					className="h-10 min-h-10 rounded-none border-neutral/30 bg-base-100 px-2 text-sm font-normal focus:border-secondary focus:outline-none"
+					labelClassName="pb-1 text-sm font-normal"
+					endAdornment={
+						<button
+							type="button"
+							onClick={() => setShowPassword((visible) => !visible)}
+							className="text-neutral/55"
+							aria-label={showPassword ? "Hide password" : "Show password"}
+						>
+							<PasswordVisibilityIcon visible={showPassword} />
+						</button>
+					}
 					required
 				/>
 				<Input
-					label="Confirm password"
+					label="Retype Password"
 					name="confirmPassword"
-					type="password"
+					type={showConfirmation ? "text" : "password"}
 					autoComplete="new-password"
 					minLength={8}
+					placeholder="Retype Password"
+					className="h-10 min-h-10 rounded-none border-neutral/30 bg-base-100 px-2 text-sm font-normal focus:border-secondary focus:outline-none"
+					labelClassName="pb-1 text-sm font-normal"
+					endAdornment={
+						<button
+							type="button"
+							onClick={() => setShowConfirmation((visible) => !visible)}
+							className="text-neutral/55"
+							aria-label={
+								showConfirmation ? "Hide password confirmation" : "Show password confirmation"
+							}
+						>
+							<PasswordVisibilityIcon visible={showConfirmation} />
+						</button>
+					}
 					required
 				/>
-				<Button type="submit" fullWidth loading={pending}>
-					Create account
-				</Button>
+				<div className="flex justify-center pt-2">
+					<Button
+						type="submit"
+						variant="accent"
+						loading={pending}
+						className="h-14 min-h-14 w-40 rounded-full border-0 text-lg font-bold shadow-none"
+					>
+						Sign up
+					</Button>
+				</div>
 			</form>
 
-			<p className="text-center text-sm text-base-content/65">
+			<div className="my-5 flex items-center gap-3 text-[0.65rem] font-semibold text-neutral">
+				<span className="h-px flex-1 bg-neutral/50" />
+				<span>OR</span>
+				<span className="h-px flex-1 bg-neutral/50" />
+			</div>
+
+			<SocialAuthButtons action="Sign up" />
+
+			<p className="mt-4 text-center text-xs text-neutral">
 				Already have an account?{" "}
-				<Link href="/login" className="font-semibold text-secondary hover:underline">
-					Sign in
+				<Link href="/login" className="font-normal text-secondary underline">
+					Login
 				</Link>
 			</p>
-		</>
+		</div>
+	)
+}
+
+function PasswordVisibilityIcon({ visible }: { visible: boolean }) {
+	return (
+		<svg
+			aria-hidden="true"
+			className="size-4"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="1.5"
+		>
+			<path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z" />
+			<circle cx="12" cy="12" r="2.5" />
+			{!visible ? <path d="m4 4 16 16" /> : null}
+		</svg>
 	)
 }

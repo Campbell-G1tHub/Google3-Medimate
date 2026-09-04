@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { FormAlert } from "@/components/auth/form-alert"
+import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { signIn } from "@/lib/auth-client"
@@ -54,49 +55,66 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 				type="success"
 			/>
 
-			<form className="space-y-4" onSubmit={handleSubmit}>
-				<Input
-					label="Email address"
-					name="email"
-					type="email"
-					autoComplete="email"
-					placeholder="alex@example.com"
-					required
-				/>
-				<Input
-					label="Password"
-					name="password"
-					type="password"
-					autoComplete="current-password"
-					required
-				/>
+			<form className="space-y-3" onSubmit={handleSubmit}>
+				<div className="mx-auto max-w-[17.5rem] space-y-2">
+					<Input
+						label="Email"
+						name="email"
+						type="email"
+						autoComplete="email"
+						placeholder="Email address"
+						className="h-10 min-h-10 rounded-none border-neutral/30 bg-base-100 px-2 text-base font-normal focus:border-secondary focus:outline-none"
+						labelClassName="pb-1 text-base font-normal"
+						required
+					/>
+					<Input
+						label="Password"
+						name="password"
+						type="password"
+						autoComplete="current-password"
+						placeholder="Password"
+						className="h-10 min-h-10 rounded-none border-neutral/30 bg-base-100 px-2 text-base font-normal focus:border-secondary focus:outline-none"
+						labelClassName="sr-only"
+						required
+					/>
+				</div>
 
-				<div className="flex items-center justify-between gap-4 text-sm">
-					<label className="label cursor-pointer gap-2 py-0">
-						<input name="rememberMe" type="checkbox" className="checkbox checkbox-sm" />
+				<div className="flex items-center justify-between gap-4 text-sm sm:text-base">
+					<label className="flex cursor-pointer items-center gap-3">
+						<input
+							name="rememberMe"
+							type="checkbox"
+							className="checkbox size-6 rounded-none border-neutral/70 bg-base-100"
+						/>
 						<span>Remember me</span>
 					</label>
-					<Link href="/forgot-password" className="font-semibold text-secondary hover:underline">
+					<Link href="/forgot-password" className="font-normal text-secondary underline">
 						Forgot password?
 					</Link>
 				</div>
 
-				<Button type="submit" fullWidth loading={pending}>
-					Sign in
-				</Button>
+				<div className="flex justify-center pt-1">
+					<Button
+						type="submit"
+						variant="accent"
+						loading={pending}
+						className="h-14 min-h-14 w-40 rounded-full border-0 text-lg font-bold shadow-none"
+					>
+						Log in
+					</Button>
+				</div>
 			</form>
 
-			<div className="divider text-xs text-base-content/45 uppercase">or</div>
-			<Link href="/one-time-login" className="btn btn-outline btn-primary w-full">
-				Use a one-time code
-			</Link>
-
-			<p className="text-center text-sm text-base-content/65">
-				New to Medimate?{" "}
-				<Link href="/sign-up" className="font-semibold text-secondary hover:underline">
-					Create an account
+			<p className="mt-11 text-center text-sm text-neutral sm:text-base">
+				Don&apos;t have an account?{" "}
+				<Link href="/sign-up" className="font-normal text-secondary underline">
+					Sign up
 				</Link>
 			</p>
+
+			<div className="mx-auto mt-12 max-w-[18.5rem]">
+				<SocialAuthButtons action="Continue" />
+			</div>
 		</>
 	)
 }

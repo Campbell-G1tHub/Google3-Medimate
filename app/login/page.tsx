@@ -17,7 +17,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 	const params = await searchParams
 
 	return (
-		<AuthShell title="Welcome back" description="Sign in to your Medimate volunteer account.">
+		<AuthShell title="Log in to your Medimate account">
 			<LoginForm passwordReset={params.reset === "true"} verified={params.verified === "true"} />
 		</AuthShell>
 	)
