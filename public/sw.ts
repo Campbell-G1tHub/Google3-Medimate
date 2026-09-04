@@ -1,4 +1,6 @@
-self.addEventListener('push', (event) => {
+const sw = self as unknown as ServiceWorkerGlobalScope;
+
+sw.addEventListener('push', (event: PushEvent) => {
   if (event.data) {
     const data = event.data.json()
     const options = {
@@ -11,12 +13,12 @@ self.addEventListener('push', (event) => {
         primaryKey: '2',
       },
     }
-    event.waitUntil(self.registration.showNotification(data.title, options))
+    event.waitUntil(sw.registration.showNotification(data.title, options))
   }
 })
- 
-self.addEventListener('notificationclick', (event) => {
+
+sw.addEventListener('notificationclick', (event: NotificationEvent) => {
   console.log('Notification click received.')
   event.notification.close()
-  event.waitUntil(clients.openWindow('http://localhost:3000')) // DOTHIS: change url (what URL to show on click)
+  event.waitUntil(sw.clients.openWindow('http://localhost:3000')) // DOTHIS: change url (what URL to show on click)
 })

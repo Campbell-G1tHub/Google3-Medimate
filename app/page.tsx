@@ -37,7 +37,7 @@ function PushNotificationManager() {
 	const [message, setMessage] = useState('')
 
 	const registerServiceWorker = useCallback(async () => {
-		const registration = await navigator.serviceWorker.register('/sw.js', {
+		const registration = await navigator.serviceWorker.register('/sw.ts', {
 			scope: '/',
 			updateViaCache: 'none',
 		})
