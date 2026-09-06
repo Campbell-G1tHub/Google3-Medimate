@@ -35,7 +35,7 @@ export function AuthShell({
 					<span className="text-base font-bold sm:text-lg">Medical Pantry</span>
 				</Link>
 				<Link href="/" className="text-xl font-bold sm:text-2xl">
-					Medimate
+					MediMate
 				</Link>
 			</header>
 

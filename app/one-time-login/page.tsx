@@ -3,7 +3,7 @@ import { AuthShell } from "@/components/auth/auth-shell"
 import { OneTimeLoginForm } from "@/components/auth/one-time-login-form"
 
 export const metadata: Metadata = {
-	title: "One-time login | Medimate",
+	title: "One-time login | MediMate",
 }
 
 export default function OneTimeLoginPage() {

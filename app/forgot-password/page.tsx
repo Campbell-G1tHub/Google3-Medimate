@@ -3,7 +3,7 @@ import { AuthShell } from "@/components/auth/auth-shell"
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form"
 
 export const metadata: Metadata = {
-	title: "Forgot password | Medimate",
+	title: "Forgot password | MediMate",
 }
 
 export default function ForgotPasswordPage() {

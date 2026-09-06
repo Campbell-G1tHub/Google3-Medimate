@@ -32,7 +32,7 @@ export function SignUpForm() {
 
 		setPending(true)
 		const result = await signUp.email({
-			name: email.split("@")[0] || "Medimate volunteer",
+			name: email.split("@")[0] || "MediMate volunteer",
 			email,
 			password,
 			callbackURL: "/login?verified=true",

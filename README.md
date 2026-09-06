@@ -1,4 +1,4 @@
-This is our group repository for Google3 IT Project working on: Medimate for Medical Pantry 
+This is our group repository for Google3 IT Project working on: MediMate for Medical Pantry
 
 # Development Tips:
 - Branches are cheap, merge conflicts are not - separate logical features into individual branches (i.e feat/add-new-auth-method)

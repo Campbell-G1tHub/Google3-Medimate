@@ -23,7 +23,7 @@ export default function AccountPage() {
 						<p className="text-xs font-semibold tracking-[0.18em] text-secondary uppercase">
 							Medical Pantry
 						</p>
-						<h1 className="mt-1 text-3xl text-primary">Your Medimate account</h1>
+						<h1 className="mt-1 text-3xl text-primary">Your MediMate account</h1>
 					</div>
 
 					{isPending ? (

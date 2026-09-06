@@ -3,7 +3,7 @@ import { AuthShell } from "@/components/auth/auth-shell"
 import { ResetPasswordForm } from "@/components/auth/reset-password-form"
 
 export const metadata: Metadata = {
-	title: "Reset password | Medimate",
+	title: "Reset password | MediMate",
 }
 
 interface ResetPasswordPageProps {

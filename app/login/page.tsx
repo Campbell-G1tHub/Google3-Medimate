@@ -3,7 +3,7 @@ import { AuthShell } from "@/components/auth/auth-shell"
 import { LoginForm } from "@/components/auth/login-form"
 
 export const metadata: Metadata = {
-	title: "Sign in | Medimate",
+	title: "Sign in | MediMate",
 }
 
 interface LoginPageProps {
@@ -17,7 +17,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 	const params = await searchParams
 
 	return (
-		<AuthShell title="Log in to your Medimate account">
+		<AuthShell title="Log in to your MediMate account">
 			<LoginForm passwordReset={params.reset === "true"} verified={params.verified === "true"} />
 		</AuthShell>
 	)
