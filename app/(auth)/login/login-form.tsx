@@ -73,9 +73,9 @@ export function LoginForm() {
 			<div className="divider text-sm font-semibold">OR</div>
 
 			<div className="flex flex-col gap-2">
-				<SocialButton label="Continue with Apple" />
-				<SocialButton label="Continue with Google" />
-				<SocialButton label="Continue with Facebook" />
+				<SocialButton icon="/icons/apple.png" label="Continue with Apple" />
+				<SocialButton icon="/icons/google.png" label="Continue with Google" />
+				<SocialButton icon="/icons/facebook.png" label="Continue with Facebook" />
 			</div>
 
 			<p className="mt-6 text-center text-sm">
