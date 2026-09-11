@@ -9,7 +9,7 @@ export function SocialButton({ icon, label }: SocialButtonProps) {
 	return (
 		<button
 			type="button"
-			className="btn w-full justify-center rounded-full border-base-300 bg-base-100 font-medium text-base-content shadow-none hover:bg-base-300"
+			className="btn w-full justify-center rounded-full border-base-content/30 bg-base-100 font-normal text-base-content shadow-none hover:bg-base-300"
 			aria-disabled="true"
 		>
 			<span className="flex w-64 items-center gap-6">

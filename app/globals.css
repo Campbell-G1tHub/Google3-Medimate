@@ -47,8 +47,10 @@
 	--font-heading: var(--font-poppins);
 }
 
-* {
-	border-color: var(--color-base-300);
+@layer base {
+	* {
+		border-color: var(--color-base-300);
+	}
 }
 
 body {
