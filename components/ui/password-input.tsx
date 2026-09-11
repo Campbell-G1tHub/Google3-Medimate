@@ -21,7 +21,7 @@ export function PasswordInput({ ...props }: PasswordInputProps) {
 					aria-label={visible ? "Hide password" : "Show password"}
 				>
 					<Image
-						src={visible ? "/icons/show_password_visible.svg" : "/icons/show_password.svg"}
+						src={visible ? "/icons/show_password.svg" : "/icons/hide_password.svg"}
 						alt=""
 						width={18}
 						height={18}
