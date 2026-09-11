@@ -15,7 +15,7 @@ function SubmitButton() {
 	const { pending } = useFormStatus()
 
 	return (
-		<Button type="submit" variant="accent" loading={pending} className="w-40 rounded-full">
+		<Button type="submit" variant="accent" loading={pending} className="w-40 rounded-full font-bold">
 			Log in
 		</Button>
 	)
@@ -26,7 +26,7 @@ export function LoginForm() {
 
 	return (
 		<div className="w-full max-w-sm">
-			<h1 className="text-center text-xl font-bold sm:text-2xl">Log in to your Medimate account</h1>
+			<h1 className="text-balance text-center text-xl font-bold">Log in to your MediMate account</h1>
 
 			<form action={formAction} className="mt-6 flex flex-col gap-3" noValidate>
 				<Input

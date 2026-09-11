@@ -2,9 +2,9 @@ import type { MetadataRoute } from 'next'
  
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Medimate App',
-    short_name: 'medimate',
-    description: 'Medimate App',
+    name: 'MediMate App',
+    short_name: 'MediMate',
+    description: 'MediMate App',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',

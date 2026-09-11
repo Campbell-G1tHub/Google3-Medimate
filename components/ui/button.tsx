@@ -3,7 +3,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react"
 const variantClasses = {
 	primary: "btn-primary",
 	secondary: "btn-secondary",
-	accent: "btn-accent",
+	accent: "btn-accent hover:border-primary hover:bg-primary hover:text-primary-content",
 	neutral: "btn-neutral",
 	ghost: "btn-ghost",
 	outline: "btn-outline btn-primary",
