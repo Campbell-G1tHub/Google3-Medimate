@@ -12,7 +12,7 @@ export function SocialButton({ icon, label }: SocialButtonProps) {
 			className="btn w-full justify-center rounded-full border-base-300 bg-base-100 font-medium text-base-content shadow-none hover:bg-base-300"
 			aria-disabled="true"
 		>
-			<span className="flex w-64 items-center gap-4">
+			<span className="flex w-64 items-center gap-6">
 				<Image src={icon} alt="" width={20} height={20} className="shrink-0" />
 				<span>{label}</span>
 			</span>

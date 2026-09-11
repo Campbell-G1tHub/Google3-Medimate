@@ -34,7 +34,7 @@ export function Button({
 	...props
 }: ButtonProps) {
 	const classes = [
-		"btn",
+		"btn [--depth:0]",
 		variantClasses[variant],
 		sizeClasses[size],
 		fullWidth && "w-full",
