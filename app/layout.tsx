@@ -10,7 +10,7 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-	title: "Medimate | Medical Pantry",
+	title: "MediMate | Medical Pantry",
 	description: "Medical Pantry's inventory and redistribution platform.",
 }
 

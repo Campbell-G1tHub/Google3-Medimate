@@ -1,3 +1,5 @@
 export { Button, type ButtonProps } from "./button"
 export { Card, type CardProps } from "./card"
 export { Input, type InputProps } from "./input"
+export { PasswordInput, type PasswordInputProps } from "./password-input"
+export { SocialButton, type SocialButtonProps } from "./social-button"

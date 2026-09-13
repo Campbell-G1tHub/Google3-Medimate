@@ -47,8 +47,10 @@
 	--font-heading: var(--font-poppins);
 }
 
-* {
-	border-color: var(--color-base-300);
+@layer base {
+	* {
+		border-color: var(--color-base-300);
+	}
 }
 
 body {
@@ -57,11 +59,13 @@ body {
 	font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
 }
 
-button,
-input,
-select,
-textarea {
-	font: inherit;
+@layer base {
+	button,
+	input,
+	select,
+	textarea {
+		font: inherit;
+	}
 }
 
 h1,
