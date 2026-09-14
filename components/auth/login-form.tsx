@@ -8,6 +8,7 @@ import { SocialAuthButtons, type SocialProvider } from "@/components/auth/social
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { signIn } from "@/lib/auth-client"
+import { Separator } from "../ui"
 import { PasswordVisibilityIcon } from "./password-visibility-icon"
 import { Separator } from "../ui"
 

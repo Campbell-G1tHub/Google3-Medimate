@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { Card } from "../ui"
 
 interface AuthShellProps {
 	children: ReactNode
