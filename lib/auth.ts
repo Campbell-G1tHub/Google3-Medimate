@@ -7,6 +7,7 @@ import {
 	sendVerificationEmail,
 } from "@/lib/auth-email"
 import { prisma } from "@/lib/prisma"
+import { nextCookies } from "better-auth/next-js"
 
 const trustedOrigins = process.env.AUTH_TRUSTED_ORIGINS?.split(",")
 	.map((origin) => origin.trim())
@@ -48,6 +49,7 @@ export const auth = betterAuth({
 		},
 	},
 	plugins: [
+		nextCookies(),
 		emailOTP({
 			disableSignUp: true,
 			expiresIn: 10 * 60,

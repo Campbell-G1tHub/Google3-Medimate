@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import type { ReactNode } from "react"
 
 interface AuthShellProps {
@@ -6,17 +7,6 @@ interface AuthShellProps {
 	compact?: boolean
 	description?: string
 	title: string
-}
-
-function MedicalPantryMark() {
-	return (
-		<span className="grid size-8 shrink-0 rotate-45 grid-cols-2 gap-1" aria-hidden="true">
-			<span className="rounded-[2px] bg-accent" />
-			<span className="rounded-[2px] bg-accent" />
-			<span className="rounded-[2px] bg-accent" />
-			<span className="rounded-[2px] bg-accent" />
-		</span>
-	)
 }
 
 export function AuthShell({
@@ -27,9 +17,9 @@ export function AuthShell({
 }: AuthShellProps) {
 	return (
 		<main className="flex min-h-dvh flex-col bg-base-100 text-neutral">
-			<header className="flex h-28 shrink-0 items-center justify-between bg-primary px-5 text-primary-content sm:px-8 lg:px-12">
+			<header className="flex h-14 shrink-0 items-center justify-between bg-primary px-5 text-primary-content sm:px-8 lg:px-12">
 				<Link href="/" className="flex items-center gap-3" aria-label="Medical Pantry home">
-					<MedicalPantryMark />
+					<Image src="/icons/icon-transparent.png" alt="" height={30} width={30} />
 					<span className="text-base font-bold sm:text-lg">Medical Pantry</span>
 				</Link>
 				<Link href="/" className="text-xl font-bold sm:text-2xl">
