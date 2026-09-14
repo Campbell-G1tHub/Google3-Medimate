@@ -26,10 +26,9 @@ export function SignUpForm() {
 		setError("")
 		setMessage("")
 
-		const form = new FormData(event.currentTarget)
-		const email = String(form.get("email") ?? "").trim()
-		const password = String(form.get("password") ?? "")
-		const confirmPassword = String(form.get("confirmPassword") ?? "")
+		const email = formData.email.trim()
+		const password = formData.password
+		const confirmPassword = formData.confirmPassword
 
 		if (password !== confirmPassword) {
 			setError("Passwords do not match.")

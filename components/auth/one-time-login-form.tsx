@@ -11,6 +11,7 @@ import { authClient, signIn } from "@/lib/auth-client"
 export function OneTimeLoginForm() {
 	const router = useRouter()
 	const [email, setEmail] = useState("")
+	const [otp, setOtp] = useState("")
 	const [codeSent, setCodeSent] = useState(false)
 	const [error, setError] = useState("")
 	const [message, setMessage] = useState("")
@@ -42,10 +43,9 @@ export function OneTimeLoginForm() {
 		setError("")
 		setPending(true)
 
-		const form = new FormData(event.currentTarget)
 		const result = await signIn.emailOtp({
 			email,
-			otp: String(form.get("otp") ?? "").trim(),
+			otp: otp.trim(),
 		})
 		setPending(false)
 
@@ -92,6 +92,8 @@ export function OneTimeLoginForm() {
 						minLength={6}
 						maxLength={6}
 						placeholder="000000"
+						value={otp}
+						onChange={(event) => setOtp(event.target.value)}
 						required
 					/>
 					<Button type="submit" fullWidth loading={pending}>

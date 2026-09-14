@@ -66,11 +66,7 @@ export function ForgotPasswordForm() {
 		setError("")
 		setPending(true)
 
-		const form = new FormData(event.currentTarget)
-		const password = String(form.get("password") ?? "")
-		const confirmPassword = String(form.get("confirmPassword") ?? "")
-
-		if (password !== confirmPassword) {
+		if (OTPResetFormData.password !== OTPResetFormData.confirmPassword) {
 			setPending(false)
 			setError("Passwords do not match.")
 			return
@@ -78,8 +74,8 @@ export function ForgotPasswordForm() {
 
 		const result = await authClient.emailOtp.resetPassword({
 			email,
-			otp: String(form.get("otp") ?? "").trim(),
-			password,
+			otp: OTPResetFormData.otp.trim(),
+			password: OTPResetFormData.password,
 		})
 		setPending(false)
 

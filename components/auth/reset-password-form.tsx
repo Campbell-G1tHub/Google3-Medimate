@@ -17,6 +17,10 @@ export function ResetPasswordForm({ invalidToken, token }: ResetPasswordFormProp
 	const router = useRouter()
 	const [error, setError] = useState("")
 	const [pending, setPending] = useState(false)
+	const [formData, setFormData] = useState<{ password: string, confirmPassword: string }>({
+		password: "",
+		confirmPassword: ""
+	})
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
@@ -27,17 +31,13 @@ export function ResetPasswordForm({ invalidToken, token }: ResetPasswordFormProp
 			return
 		}
 
-		const form = new FormData(event.currentTarget)
-		const password = String(form.get("password") ?? "")
-		const confirmPassword = String(form.get("confirmPassword") ?? "")
-
-		if (password !== confirmPassword) {
+		if (formData.password !== formData.confirmPassword) {
 			setError("Passwords do not match.")
 			return
 		}
 
 		setPending(true)
-		const result = await resetPassword({ newPassword: password, token })
+		const result = await resetPassword({ newPassword: formData.password, token })
 		setPending(false)
 
 		if (result.error) {
@@ -46,6 +46,10 @@ export function ResetPasswordForm({ invalidToken, token }: ResetPasswordFormProp
 		}
 
 		router.push("/login?reset=true")
+	}
+
+	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+		setFormData({ ...formData, [event.target.name]: event.target.value })
 	}
 
 	return (
@@ -65,6 +69,8 @@ export function ResetPasswordForm({ invalidToken, token }: ResetPasswordFormProp
 						autoComplete="new-password"
 						minLength={8}
 						hint="Use at least 8 characters."
+						value={formData.password}
+						onChange={handleChange}
 						required
 					/>
 					<Input
@@ -73,6 +79,8 @@ export function ResetPasswordForm({ invalidToken, token }: ResetPasswordFormProp
 						type="password"
 						autoComplete="new-password"
 						minLength={8}
+						value={formData.confirmPassword}
+						onChange={handleChange}
 						required
 					/>
 					<Button type="submit" fullWidth loading={pending}>

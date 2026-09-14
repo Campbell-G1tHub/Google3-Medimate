@@ -19,9 +19,10 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 	const router = useRouter()
 	const [error, setError] = useState("")
 	const [pending, setPending] = useState(false)
-	const [formData, setFormData] = useState<{ email: string, password: string }>({
+	const [formData, setFormData] = useState<{ email: string, password: string, rememberMe: boolean }>({
 		email: "",
-		password: ""
+		password: "",
+		rememberMe: false
 	})
 	const [passwordVisible, setPasswordVisible] = useState(false);
 
@@ -30,11 +31,10 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 		setError("")
 		setPending(true)
 
-		const form = new FormData(event.currentTarget)
 		const result = await signIn.email({
 			email: formData.email.trim(),
 			password: formData.password,
-			rememberMe: form.get("rememberMe") === "on",
+			rememberMe: formData.rememberMe,
 		})
 		setPending(false)
 
@@ -45,7 +45,7 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 
 		router.push("/account")
 		router.refresh()
-		setFormData({ email: "", password: "" })
+		setFormData({ email: "", password: "", rememberMe: false })
 	}
 
 	return (
@@ -105,6 +105,8 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 						<input
 							name="rememberMe"
 							type="checkbox"
+							checked={formData.rememberMe}
+							onChange={e => setFormData({ ...formData, rememberMe: e.target.checked })}
 							className="checkbox size-6 border-neutral/70 bg-base-100"
 						/>
 						<span>Remember me</span>
