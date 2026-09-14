@@ -14,6 +14,11 @@ export function SignUpForm() {
 	const [pending, setPending] = useState(false)
 	const [showPassword, setShowPassword] = useState(false)
 	const [showConfirmation, setShowConfirmation] = useState(false)
+	const [formData, setFormData] = useState<{ email: string, password: string, confirmPassword: string }>({
+		email: "",
+		password: "",
+		confirmPassword: ""
+	});
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
@@ -45,7 +50,15 @@ export function SignUpForm() {
 		}
 
 		setMessage("Account created. Check your inbox and verify your email before signing in.")
-		event.currentTarget.reset()
+		setFormData({
+			email: "",
+			password: "",
+			confirmPassword: ""
+		})
+	}
+
+	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+		setFormData({ ...formData, [event.target.name]: event.target.value });
 	}
 
 	return (
@@ -58,6 +71,8 @@ export function SignUpForm() {
 					label="Email"
 					name="email"
 					type="email"
+					value={formData.email}
+					onChange={handleChange}
 					autoComplete="email"
 					placeholder="Email address"
 					className="h-10 min-h-10 rounded-none border-neutral/30 bg-base-100 px-2 text-sm font-normal focus:border-secondary focus:outline-none"
@@ -69,6 +84,8 @@ export function SignUpForm() {
 					name="password"
 					type={showPassword ? "text" : "password"}
 					autoComplete="new-password"
+					value={formData.password}
+					onChange={handleChange}
 					minLength={8}
 					placeholder="Password"
 					className="h-10 min-h-10 rounded-none border-neutral/30 bg-base-100 px-2 text-sm font-normal focus:border-secondary focus:outline-none"
@@ -77,7 +94,7 @@ export function SignUpForm() {
 						<button
 							type="button"
 							onClick={() => setShowPassword((visible) => !visible)}
-							className="text-neutral/55"
+							className="text-neutral/55 hover:cursor-pointer"
 							aria-label={showPassword ? "Hide password" : "Show password"}
 						>
 							<PasswordVisibilityIcon visible={showPassword} />
@@ -89,6 +106,8 @@ export function SignUpForm() {
 					label="Retype Password"
 					name="confirmPassword"
 					type={showConfirmation ? "text" : "password"}
+					value={formData.confirmPassword}
+					onChange={handleChange}
 					autoComplete="new-password"
 					minLength={8}
 					placeholder="Retype Password"
@@ -98,7 +117,7 @@ export function SignUpForm() {
 						<button
 							type="button"
 							onClick={() => setShowConfirmation((visible) => !visible)}
-							className="text-neutral/55"
+							className="text-neutral/55 hover:cursor-pointer"
 							aria-label={
 								showConfirmation ? "Hide password confirmation" : "Show password confirmation"
 							}
