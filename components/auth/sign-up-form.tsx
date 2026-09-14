@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { signUp } from "@/lib/auth-client"
 import { PasswordVisibilityIcon } from "./password-visibility-icon"
+import { Separator } from "../ui"
 
 export function SignUpForm() {
 	const [error, setError] = useState("")
@@ -135,9 +136,7 @@ export function SignUpForm() {
 					</Button>
 				</div>
 			</form>
-
-			<div className="divider text-sm font-semibold">OR</div>
-
+			<Separator label="OR" />
 			<SocialAuthButtons action="Sign up" />
 			<p className="mt-4 text-center text-base text-neutral">
 				Already have an account?{" "}
