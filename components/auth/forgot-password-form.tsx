@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import type React from "react"
 import { useState } from "react"
 import { FormAlert } from "@/components/auth/form-alert"
 import { Button } from "@/components/ui/button"
@@ -19,11 +20,18 @@ export function ForgotPasswordForm() {
 	const [message, setMessage] = useState("")
 	const [pending, setPending] = useState(false)
 
+	const [OTPResetFormData, setOTPResetFormData] = useState<{ otp: string, password: string, confirmPassword: string }>({
+		otp: "",
+		password: "",
+		confirmPassword: ""
+	})
+
 	function changeMethod(nextMethod: ResetMethod) {
 		setMethod(nextMethod)
 		setCodeSent(false)
 		setError("")
 		setMessage("")
+		setEmail("")
 	}
 
 	async function sendReset(event: React.FormEvent<HTMLFormElement>) {
@@ -50,6 +58,7 @@ export function ForgotPasswordForm() {
 		}
 
 		setMessage("If the account exists, a password reset link has been sent.")
+		setEmail("")
 	}
 
 	async function resetWithCode(event: React.FormEvent<HTMLFormElement>) {
@@ -80,6 +89,10 @@ export function ForgotPasswordForm() {
 		}
 
 		router.push("/login?reset=true")
+	}
+
+	function handleOTPResetFormChange(event: React.ChangeEvent<HTMLInputElement>) {
+		setOTPResetFormData({ ...OTPResetFormData, [event.target.name]: event.target.value })
 	}
 
 	return (
@@ -132,6 +145,8 @@ export function ForgotPasswordForm() {
 						minLength={6}
 						maxLength={6}
 						placeholder="000000"
+						value={OTPResetFormData.otp}
+						onChange={handleOTPResetFormChange}
 						required
 					/>
 					<Input
@@ -140,6 +155,8 @@ export function ForgotPasswordForm() {
 						type="password"
 						autoComplete="new-password"
 						minLength={8}
+						value={OTPResetFormData.password}
+						onChange={handleOTPResetFormChange}
 						required
 					/>
 					<Input
@@ -147,6 +164,8 @@ export function ForgotPasswordForm() {
 						name="confirmPassword"
 						type="password"
 						autoComplete="new-password"
+						value={OTPResetFormData.confirmPassword}
+						onChange={handleOTPResetFormChange}
 						minLength={8}
 						required
 					/>
