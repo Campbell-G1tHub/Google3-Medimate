@@ -133,7 +133,7 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 				<SocialAuthButtons action="Continue" />
 			</div>
 
-			<p className="mt-11 text-center text-sm text-neutral sm:text-base">
+			<p className="mt-4 text-center text-neutral text-base">
 				Don&apos;t have an account?{" "}
 				<Link href="/sign-up" className="font-normal text-secondary underline">
 					Sign up

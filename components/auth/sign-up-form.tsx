@@ -62,7 +62,7 @@ export function SignUpForm() {
 	}
 
 	return (
-		<div className="mx-auto max-w-[17.5rem]">
+		<div className="mx-auto max-w-[22rem]">
 			<FormAlert message={error} />
 			<FormAlert message={message} type="success" />
 
@@ -75,7 +75,6 @@ export function SignUpForm() {
 					onChange={handleChange}
 					autoComplete="email"
 					placeholder="Email address"
-					className="h-10 min-h-10 rounded-none border-neutral/30 bg-base-100 px-2 text-sm font-normal focus:border-secondary focus:outline-none"
 					labelClassName="pb-1 text-sm font-normal"
 					required
 				/>
@@ -88,7 +87,6 @@ export function SignUpForm() {
 					onChange={handleChange}
 					minLength={8}
 					placeholder="Password"
-					className="h-10 min-h-10 rounded-none border-neutral/30 bg-base-100 px-2 text-sm font-normal focus:border-secondary focus:outline-none"
 					labelClassName="pb-1 text-sm font-normal"
 					endAdornment={
 						<button
@@ -111,7 +109,6 @@ export function SignUpForm() {
 					autoComplete="new-password"
 					minLength={8}
 					placeholder="Retype Password"
-					className="h-10 min-h-10 rounded-none border-neutral/30 bg-base-100 px-2 text-sm font-normal focus:border-secondary focus:outline-none"
 					labelClassName="pb-1 text-sm font-normal"
 					endAdornment={
 						<button
@@ -132,27 +129,22 @@ export function SignUpForm() {
 						type="submit"
 						variant="accent"
 						loading={pending}
-						className="h-14 min-h-14 w-40 rounded-full border-0 text-lg font-bold shadow-none"
+						className="rounded-full w-40 border-0 text-md font-bold shadow-none"
 					>
 						Sign up
 					</Button>
 				</div>
 			</form>
 
-			<div className="my-5 flex items-center gap-3 text-[0.65rem] font-semibold text-neutral">
-				<span className="h-px flex-1 bg-neutral/50" />
-				<span>OR</span>
-				<span className="h-px flex-1 bg-neutral/50" />
-			</div>
+			<div className="divider text-sm font-semibold">OR</div>
 
 			<SocialAuthButtons action="Sign up" />
-
-			<p className="mt-4 text-center text-xs text-neutral">
+			<p className="mt-4 text-center text-base text-neutral">
 				Already have an account?{" "}
 				<Link href="/login" className="font-normal text-secondary underline">
 					Login
 				</Link>
 			</p>
-		</div>
+		</div >
 	)
 }

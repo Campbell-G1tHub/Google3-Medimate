@@ -23,7 +23,7 @@ export function Input({
 }: InputProps) {
 	const inputId = id ?? name
 	const descriptionId = inputId ? `${inputId}-${error ? "error" : "hint"}` : undefined
-	const classes = ["input w-full", error && "input-error", className].filter(Boolean).join(" ")
+	const classes = ["input w-full border-neutral/30 bg-base-100 px-2 text-sm font-normal focus:border-secondary focus:outline-none", error && "input-error", className].filter(Boolean).join(" ")
 
 	return (
 		<fieldset className={["fieldset w-full", wrapperClassName].filter(Boolean).join(" ")}>
