@@ -1,7 +1,9 @@
 @import "tailwindcss";
+
 @plugin "daisyui" {
 	themes: false;
 }
+
 @plugin "daisyui/theme" {
 	name: "medical-pantry";
 	default: true;
@@ -57,12 +59,6 @@ body {
 	font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
 }
 
-button,
-input,
-select,
-textarea {
-	font: inherit;
-}
 
 h1,
 h2,

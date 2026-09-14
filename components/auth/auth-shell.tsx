@@ -5,7 +5,6 @@ interface AuthShellProps {
 	children: ReactNode
 	compact?: boolean
 	description?: string
-	showFooter?: boolean
 	title: string
 }
 
@@ -24,7 +23,6 @@ export function AuthShell({
 	children,
 	compact = false,
 	description,
-	showFooter = true,
 	title,
 }: AuthShellProps) {
 	return (
@@ -40,12 +38,11 @@ export function AuthShell({
 			</header>
 
 			<section
-				className={`flex flex-1 justify-center px-5 ${
-					compact ? "pt-12 pb-16 sm:pt-14" : "pt-14 pb-14 sm:pt-24 lg:pt-32"
-				}`}
+				className={`flex flex-1 justify-center px-5 ${compact ? "pt-12 pb-16 sm:pt-14" : "pt-14 pb-14 sm:pt-24 lg:pt-32"
+					}`}
 			>
 				<div className="w-full max-w-xl">
-					<h1 className="mx-auto max-w-lg text-center text-2xl leading-tight font-bold text-neutral sm:text-[1.65rem]">
+					<h1 className="mx-auto max-w-lg text-center text-2xl font-bold text-neutral">
 						{title}
 					</h1>
 					{description ? (
@@ -56,12 +53,6 @@ export function AuthShell({
 					<div className="mx-auto mt-3 w-full max-w-[22rem]">{children}</div>
 				</div>
 			</section>
-
-			{showFooter && (
-				<footer className="shrink-0 px-5 pt-4 pb-5 text-center text-xs text-neutral">
-					© 2026 Medical Pantry. All rights reserved.
-				</footer>
-			)}
 		</main>
 	)
 }

@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { PasswordVisibilityIcon } from "./password-visibility-icon"
 import { FormAlert } from "@/components/auth/form-alert"
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
 import { Button } from "@/components/ui/button"
@@ -18,6 +19,11 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 	const router = useRouter()
 	const [error, setError] = useState("")
 	const [pending, setPending] = useState(false)
+	const [formData, setFormData] = useState<{ email: string, password: string }>({
+		email: "",
+		password: ""
+	})
+	const [passwordVisible, setPasswordVisible] = useState(false);
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
@@ -26,8 +32,8 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 
 		const form = new FormData(event.currentTarget)
 		const result = await signIn.email({
-			email: String(form.get("email") ?? "").trim(),
-			password: String(form.get("password") ?? ""),
+			email: formData.email.trim(),
+			password: formData.password,
 			rememberMe: form.get("rememberMe") === "on",
 		})
 		setPending(false)
@@ -39,6 +45,7 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 
 		router.push("/account")
 		router.refresh()
+		setFormData({ email: "", password: "" })
 	}
 
 	return (
@@ -56,39 +63,53 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 			/>
 
 			<form className="space-y-3" onSubmit={handleSubmit}>
-				<div className="mx-auto max-w-[17.5rem] space-y-2">
+				<div className="mx-auto space-y-2">
 					<Input
 						label="Email"
 						name="email"
 						type="email"
+						value={formData.email}
+						onChange={e => setFormData({ ...formData, email: e.target.value })}
 						autoComplete="email"
 						placeholder="Email address"
-						className="h-10 min-h-10 rounded-none border-neutral/30 bg-base-100 px-2 text-base font-normal focus:border-secondary focus:outline-none"
-						labelClassName="pb-1 text-base font-normal"
+						className="border-neutral/30 bg-base-100 px-2  font-normal focus:border-secondary focus:outline-none"
+						labelClassName="pb-1 text-sm"
 						required
 					/>
 					<Input
 						label="Password"
 						name="password"
-						type="password"
+						type={passwordVisible ? "text" : "password"}
 						autoComplete="current-password"
 						placeholder="Password"
-						className="h-10 min-h-10 rounded-none border-neutral/30 bg-base-100 px-2 text-base font-normal focus:border-secondary focus:outline-none"
+						value={formData.password}
+						onChange={e => setFormData({ ...formData, password: e.target.value })}
+						className="border-neutral/30 bg-base-100 px-2 font-normal focus:border-secondary focus:outline-none"
 						labelClassName="sr-only"
+						endAdornment={
+							<button
+								type="button"
+								onClick={() => setPasswordVisible((visible) => !visible)}
+								className="text-neutral/55 hover:cursor-pointer"
+								aria-label={passwordVisible ? "Hide password" : "Show password"}
+							>
+								<PasswordVisibilityIcon visible={passwordVisible} />
+							</button>
+						}
 						required
 					/>
 				</div>
 
-				<div className="flex items-center justify-between gap-4 text-sm sm:text-base">
-					<label className="flex cursor-pointer items-center gap-3">
+				<div className="flex items-center justify-between gap-4 text-sm">
+					<label className="flex cursor-pointer items-center gap-3 ">
 						<input
 							name="rememberMe"
 							type="checkbox"
-							className="checkbox size-6 rounded-none border-neutral/70 bg-base-100"
+							className="checkbox size-6 border-neutral/70 bg-base-100"
 						/>
 						<span>Remember me</span>
 					</label>
-					<Link href="/forgot-password" className="font-normal text-secondary underline">
+					<Link href="/forgot-password" className="font-normal text-secondary text-sm underline">
 						Forgot password?
 					</Link>
 				</div>
@@ -98,12 +119,17 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 						type="submit"
 						variant="accent"
 						loading={pending}
-						className="h-14 min-h-14 w-40 rounded-full border-0 text-lg font-bold shadow-none"
+						className="w-40 rounded-full border-none font-bold shadow-none"
 					>
-						Log in
+						<span className="font-bold">Log in</span>
 					</Button>
 				</div>
 			</form>
+			<div className="divider text-sm font-semibold">OR</div>
+
+			<div className="mx-auto mt-12 max-w-[18.5rem]">
+				<SocialAuthButtons action="Continue" />
+			</div>
 
 			<p className="mt-11 text-center text-sm text-neutral sm:text-base">
 				Don&apos;t have an account?{" "}
@@ -111,10 +137,6 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 					Sign up
 				</Link>
 			</p>
-
-			<div className="mx-auto mt-12 max-w-[18.5rem]">
-				<SocialAuthButtons action="Continue" />
-			</div>
 		</>
 	)
 }

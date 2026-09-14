@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function SignUpPage() {
 	return (
-		<AuthShell title="Create your MediMate account" compact showFooter={false}>
+		<AuthShell title="Create your MediMate account" compact>
 			<SignUpForm />
 		</AuthShell>
 	)
