@@ -3,12 +3,14 @@ import { prismaAdapter } from "better-auth/adapters/prisma"
 import { nextCookies } from "better-auth/next-js"
 import { emailOTP } from "better-auth/plugins"
 import { sendOneTimePasswordEmail, sendPasswordResetEmail } from "@/lib/auth-email"
-import { socialProviders } from "@/lib/oauth-providers"
+import { oauthTrustedOrigins, socialProviders } from "@/lib/oauth-providers"
 import { prisma } from "@/lib/prisma"
 
-const trustedOrigins = process.env.AUTH_TRUSTED_ORIGINS?.split(",")
-	.map((origin) => origin.trim())
-	.filter(Boolean)
+const configuredTrustedOrigins =
+	process.env.AUTH_TRUSTED_ORIGINS?.split(",")
+		.map((origin) => origin.trim())
+		.filter(Boolean) ?? []
+const trustedOrigins = [...new Set([...configuredTrustedOrigins, ...oauthTrustedOrigins])]
 
 export const auth = betterAuth({
 	baseURL: process.env.BETTER_AUTH_URL,

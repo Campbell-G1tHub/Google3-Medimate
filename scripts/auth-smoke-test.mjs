@@ -10,6 +10,16 @@ const otpResetPassword = "MediMate-otp-reset-2026"
 const authSecret = process.env.BETTER_AUTH_SECRET
 const socialProviders = [
 	{
+		id: "apple",
+		enabled: Boolean(
+			process.env.APPLE_CLIENT_ID &&
+				process.env.APPLE_TEAM_ID &&
+				process.env.APPLE_KEY_ID &&
+				process.env.APPLE_PRIVATE_KEY,
+		),
+		authorizationHost: "appleid.apple.com",
+	},
+	{
 		id: "google",
 		enabled: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
 		authorizationHost: "accounts.google.com",
