@@ -13,12 +13,24 @@ const socialProviders = [
 		id: "apple",
 		enabled: Boolean(
 			process.env.APPLE_CLIENT_ID &&
-				process.env.APPLE_TEAM_ID &&
-				process.env.APPLE_KEY_ID &&
-				process.env.APPLE_PRIVATE_KEY,
+			process.env.APPLE_TEAM_ID &&
+			process.env.APPLE_KEY_ID &&
+			process.env.APPLE_PRIVATE_KEY,
 		),
 		authorizationHost: "appleid.apple.com",
 	},
+	{
+		id: "google",
+		enabled: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+		authorizationHost: "accounts.google.com",
+	},
+	{
+		id: "facebook",
+		enabled: Boolean(process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET),
+		authorizationHost: "www.facebook.com",
+	},
+]
+const socialProviders = [
 	{
 		id: "google",
 		enabled: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
@@ -146,7 +158,7 @@ for (const provider of socialProviders.filter(({ enabled }) => enabled)) {
 	)
 	assert(
 		authorizationUrl.searchParams.get("redirect_uri") ===
-			`${appUrl}/api/auth/callback/${provider.id}`,
+		`${appUrl}/api/auth/callback/${provider.id}`,
 		`${provider.id} returned the wrong OAuth callback URL`,
 	)
 }

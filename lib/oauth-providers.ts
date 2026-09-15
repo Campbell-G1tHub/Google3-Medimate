@@ -55,11 +55,11 @@ async function generateAppleClientSecret() {
 export const socialProviders = {
 	...(appleCredentials
 		? {
-				apple: async () => ({
-					clientId: appleCredentials[0],
-					clientSecret: await generateAppleClientSecret(),
-				}),
-			}
+			apple: async () => ({
+				clientId: appleCredentials[0],
+				clientSecret: await generateAppleClientSecret(),
+			}),
+		}
 		: {}),
 	...(google ? { google } : {}),
 	...(facebook ? { facebook } : {}),
