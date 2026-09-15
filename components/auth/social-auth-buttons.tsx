@@ -14,7 +14,7 @@ const providers = [
 	{
 		name: "Apple",
 		icon: "/icons/apple.svg",
-		id: undefined,
+		id: "apple",
 	},
 	{
 		name: "Google",
@@ -47,10 +47,7 @@ export function SocialAuthButtons({ action, enabledProviders, onError }: SocialA
 			})
 
 			if (result.error) {
-				onError?.(
-					result.error.message ??
-						`${provider === "google" ? "Google" : "Facebook"} sign-in is not available.`,
-				)
+				onError?.(result.error.message ?? "Social sign-in is not available.")
 			}
 		} catch {
 			onError?.("Unable to start social sign-in. Please try again.")
