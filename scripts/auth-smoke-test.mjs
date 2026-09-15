@@ -30,18 +30,7 @@ const socialProviders = [
 		authorizationHost: "www.facebook.com",
 	},
 ]
-const socialProviders = [
-	{
-		id: "google",
-		enabled: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
-		authorizationHost: "accounts.google.com",
-	},
-	{
-		id: "facebook",
-		enabled: Boolean(process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET),
-		authorizationHost: "www.facebook.com",
-	},
-]
+
 
 function assert(condition, message) {
 	if (!condition) {

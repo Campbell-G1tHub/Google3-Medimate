@@ -3,6 +3,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma"
 import { nextCookies } from "better-auth/next-js"
 import { emailOTP } from "better-auth/plugins"
 import { sendOneTimePasswordEmail, sendPasswordResetEmail } from "@/lib/auth-email"
+import { oauthTrustedOrigins, socialProviders } from "@/lib/oauth-providers"
 import { prisma } from "@/lib/prisma"
 
 const configuredTrustedOrigins =
