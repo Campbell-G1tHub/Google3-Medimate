@@ -3,28 +3,39 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { PasswordVisibilityIcon } from "./password-visibility-icon"
 import { FormAlert } from "@/components/auth/form-alert"
-import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
+import { SocialAuthButtons, type SocialProvider } from "@/components/auth/social-auth-buttons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { signIn } from "@/lib/auth-client"
+import { PasswordVisibilityIcon } from "./password-visibility-icon"
 
 interface LoginFormProps {
+	enabledSocialProviders: SocialProvider[]
+	oauthError?: boolean
 	passwordReset?: boolean
 	verified?: boolean
 }
 
-export function LoginForm({ passwordReset, verified }: LoginFormProps) {
+export function LoginForm({
+	enabledSocialProviders,
+	oauthError,
+	passwordReset,
+	verified,
+}: LoginFormProps) {
 	const router = useRouter()
 	const [error, setError] = useState("")
 	const [pending, setPending] = useState(false)
-	const [formData, setFormData] = useState<{ email: string, password: string, rememberMe: boolean }>({
+	const [formData, setFormData] = useState<{
+		email: string
+		password: string
+		rememberMe: boolean
+	}>({
 		email: "",
 		password: "",
-		rememberMe: false
+		rememberMe: false,
 	})
-	const [passwordVisible, setPasswordVisible] = useState(false);
+	const [passwordVisible, setPasswordVisible] = useState(false)
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
@@ -50,7 +61,11 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 
 	return (
 		<>
-			<FormAlert message={error} />
+			<FormAlert
+				message={
+					error || (oauthError ? "Social sign-in was not completed. Please try again." : undefined)
+				}
+			/>
 			<FormAlert
 				message={
 					verified
@@ -69,7 +84,7 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 						name="email"
 						type="email"
 						value={formData.email}
-						onChange={e => setFormData({ ...formData, email: e.target.value })}
+						onChange={(e) => setFormData({ ...formData, email: e.target.value })}
 						autoComplete="email"
 						placeholder="Email address"
 						className="border-neutral/30 bg-base-100 px-2  font-normal focus:border-secondary focus:outline-none"
@@ -83,7 +98,7 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 						autoComplete="current-password"
 						placeholder="Password"
 						value={formData.password}
-						onChange={e => setFormData({ ...formData, password: e.target.value })}
+						onChange={(e) => setFormData({ ...formData, password: e.target.value })}
 						className="border-neutral/30 bg-base-100 px-2 font-normal focus:border-secondary focus:outline-none"
 						labelClassName="sr-only"
 						endAdornment={
@@ -106,7 +121,7 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 							name="rememberMe"
 							type="checkbox"
 							checked={formData.rememberMe}
-							onChange={e => setFormData({ ...formData, rememberMe: e.target.checked })}
+							onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
 							className="checkbox size-6 border-neutral/70 bg-base-100"
 						/>
 						<span>Remember me</span>
@@ -130,7 +145,11 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 			<div className="divider text-sm font-semibold">OR</div>
 
 			<div className="mx-auto mt-12 max-w-[18.5rem]">
-				<SocialAuthButtons action="Continue" />
+				<SocialAuthButtons
+					action="Continue"
+					enabledProviders={enabledSocialProviders}
+					onError={setError}
+				/>
 			</div>
 
 			<p className="mt-4 text-center text-neutral text-base">

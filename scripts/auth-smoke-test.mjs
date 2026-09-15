@@ -8,6 +8,18 @@ const originalPassword = "MediMate-test-password-2026"
 const linkResetPassword = "MediMate-link-reset-2026"
 const otpResetPassword = "MediMate-otp-reset-2026"
 const authSecret = process.env.BETTER_AUTH_SECRET
+const socialProviders = [
+	{
+		id: "google",
+		enabled: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+		authorizationHost: "accounts.google.com",
+	},
+	{
+		id: "facebook",
+		enabled: Boolean(process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET),
+		authorizationHost: "www.facebook.com",
+	},
+]
 
 function assert(condition, message) {
 	if (!condition) {
@@ -102,6 +114,32 @@ function incorrectOtp(otp) {
 }
 
 console.log("RUNNING SMOKE TESTS")
+
+for (const provider of socialProviders.filter(({ enabled }) => enabled)) {
+	console.log(`SOCIAL TEST: ${provider.id} should create an OAuth authorization URL`)
+	const result = await expectSuccess(
+		await request("/api/auth/sign-in/social", {
+			body: {
+				provider: provider.id,
+				callbackURL: "/account",
+				errorCallbackURL: "/login",
+				disableRedirect: true,
+			},
+		}),
+		`${provider.id} social sign in`,
+	)
+	const authorizationUrl = result?.url ? new URL(result.url) : undefined
+	assert(authorizationUrl, `${provider.id} did not return an authorization URL`)
+	assert(
+		authorizationUrl.hostname === provider.authorizationHost,
+		`${provider.id} returned the wrong authorization host`,
+	)
+	assert(
+		authorizationUrl.searchParams.get("redirect_uri") ===
+			`${appUrl}/api/auth/callback/${provider.id}`,
+		`${provider.id} returned the wrong OAuth callback URL`,
+	)
+}
 
 console.log("TEST 1: Hitting email sign up endpoint should succeed")
 await expectSuccess(
