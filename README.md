@@ -101,6 +101,31 @@ The auth API is available at `/api/auth/*`. The connected frontend routes are:
 - `/one-time-login`: six-digit passwordless sign-in
 - `/account`: session display and sign-out
 
+The login and sign-up screens also connect to Better Auth social sign-in for Apple, Google, and
+Facebook. Add the complete credential set for each enabled provider to `.env`:
+
+```bash
+APPLE_CLIENT_ID="your-apple-services-id"
+APPLE_TEAM_ID="your-apple-team-id"
+APPLE_KEY_ID="your-apple-key-id"
+APPLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+FACEBOOK_CLIENT_ID="your-facebook-app-id"
+FACEBOOK_CLIENT_SECRET="your-facebook-app-secret"
+```
+
+Configure these authorized OAuth redirect URLs in the provider consoles:
+
+- Google: `http://localhost:3000/api/auth/callback/google`
+- Facebook: `http://localhost:3000/api/auth/callback/facebook`
+- Apple: `https://your-public-domain/api/auth/callback/apple`
+
+Replace `http://localhost:3000` with `BETTER_AUTH_URL` for staging and production. OAuth client
+secrets and Apple's `.p8` key are read only by the server and must never use a `NEXT_PUBLIC_`
+environment variable. Apple does not accept localhost or non-HTTPS return URLs, so use the deployed
+HTTPS domain when configuring and testing Sign in with Apple.
+
 Client Components can use the exports from `lib/auth-client.ts`:
 
 ```tsx
@@ -135,4 +160,5 @@ pnpm test:auth
 
 The test covers sign-up, blocked login before verification, incorrect credentials, expired email
 verification, successful verification, password reset, one-time login, session retrieval, logout,
-and session revocation.
+and session revocation. When social provider credentials are present, it also verifies that Better
+Auth creates the correct provider authorization URL and callback URL.
