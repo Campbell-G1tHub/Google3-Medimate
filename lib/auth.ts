@@ -15,6 +15,11 @@ const trustedOrigins = [...new Set([...configuredTrustedOrigins, ...oauthTrusted
 export const auth = betterAuth({
 	baseURL: process.env.BETTER_AUTH_URL,
 	trustedOrigins,
+	rateLimit: {
+		enabled: process.env.NODE_ENV === "production",
+		window: 10,
+		max: 100
+	},
 	socialProviders,
 	rateLimit: {
 		enabled: process.env.NODE_ENV === "production",
