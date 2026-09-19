@@ -39,11 +39,10 @@ export const auth = betterAuth({
 	emailVerification: {
 		sendOnSignUp: true,
 		autoSignInAfterVerification: false,
-		expiresIn: 60 * 60,
 	},
 	plugins: [
-		nextCookies(),
 		emailOTP({
+			overrideDefaultEmailVerification: true,
 			disableSignUp: true,
 			expiresIn: 10 * 60,
 			allowedAttempts: 3,
@@ -52,5 +51,6 @@ export const auth = betterAuth({
 				await sendOneTimePasswordEmail(email, otp, type)
 			},
 		}),
+		nextCookies()
 	],
 })

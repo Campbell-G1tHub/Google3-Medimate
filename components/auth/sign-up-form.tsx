@@ -37,7 +37,7 @@ export function SignUpForm() {
 		}
 
 		setPending(true)
-		const result = await signUp.email({
+		const { error } = await signUp.email({
 			name: email.split("@")[0] || "MediMate volunteer",
 			email,
 			password,
@@ -46,16 +46,10 @@ export function SignUpForm() {
 
 		setPending(false)
 
-		if (result.error) {
-			setError(result.error.message ?? "We could not create your account. Please try again.")
+		if (error) {
+			setError(error.message ?? "We could not create your account. Please try again.")
 			return
 		}
-
-		void authClient.emailOtp.sendVerificationOtp({
-			email: formData.email,
-			type: "email-verification",
-		})
-
 		router.push(`/verify-email?email=${encodeURIComponent(email)}`)
 	}
 
