@@ -1,7 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
 import type { ReactNode } from "react"
-import { Card } from "../ui"
 
 interface AuthShellProps {
 	children: ReactNode

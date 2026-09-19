@@ -4,10 +4,9 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import type React from "react"
 import { useState } from "react"
-import { FormAlert } from "@/components/auth/form-alert"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { authClient, requestPasswordReset } from "@/lib/auth-client"
+import { authClient } from "@/lib/auth-client"
 import { Separator } from "../ui"
 
 export function ForgotPasswordForm() {
@@ -16,11 +15,19 @@ export function ForgotPasswordForm() {
 	const handleSubmit = async (event: React.SubmitEvent) => {
 		event.preventDefault();
 		const resetPasswordButtonClicked = event.nativeEvent.submitter?.id === "reset-password"
-		await authClient.emailOtp.sendVerificationOtp({
-			email: email,
-			type: resetPasswordButtonClicked ? "forget-password" : "sign-in"
-		})
-		router.push(`/forgot-password/confirm-reset?email=${email}`)
+		if (resetPasswordButtonClicked) {
+			await authClient.requestPasswordReset({
+				email: email,
+				redirectTo: `${window.location.origin}/reset-password`,
+			})
+			router.push(`/forgot-password/confirm-reset?email=${email}`)
+		}
+
+		// await authClient.emailOtp.sendVerificationOtp({
+		// 	email: email,
+		// 	type: resetPasswordButtonClicked ? "forget-password" : "sign-in"
+		// })
+
 	}
 
 	return (

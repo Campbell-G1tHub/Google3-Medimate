@@ -83,7 +83,7 @@ export function ResetPasswordForm({ invalidToken, token }: ResetPasswordFormProp
 						onChange={handleChange}
 						required
 					/>
-					<Button type="submit" fullWidth loading={pending}>
+					<Button type="submit" variant="accent" fullWidth loading={pending}>
 						Update password
 					</Button>
 				</form>
