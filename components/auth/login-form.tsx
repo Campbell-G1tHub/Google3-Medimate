@@ -8,7 +8,7 @@ import { FormAlert } from "@/components/auth/form-alert"
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { authClient, signIn } from "@/lib/auth-client"
+import { signIn } from "@/lib/auth-client"
 import { Separator } from "../ui"
 
 interface LoginFormProps {

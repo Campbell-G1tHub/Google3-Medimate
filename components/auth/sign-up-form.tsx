@@ -7,7 +7,7 @@ import { FormAlert } from "@/components/auth/form-alert"
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { authClient, signUp } from "@/lib/auth-client"
+import { signUp } from "@/lib/auth-client"
 import { PasswordVisibilityIcon } from "./password-visibility-icon"
 import { Separator } from "../ui"
 

@@ -18,8 +18,6 @@ export function OneTimeLoginForm({ email }: Props) {
 	const [otp, setOtp] = useState("")
 	const [error, setError] = useState("")
 	const [pending, setPending] = useState(false)
-	const [resentCode, setResentCode] = useState(false)
-	const [resendCooldown, setResendCooldown] = useState(0)
 
 	async function verifyCode(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
@@ -43,22 +41,6 @@ export function OneTimeLoginForm({ email }: Props) {
 
 	async function resendOTP(event: React.MouseEvent<HTMLAnchorElement>) {
 		event.preventDefault()
-		if (resendCooldown > 0) return
-
-		setResentCode(true)
-		setResendCooldown(300)
-
-		const timer = setInterval(() => {
-			setResendCooldown((current) => {
-				if (current <= 1) {
-					clearInterval(timer)
-					setResentCode(false)
-					return 0
-				}
-				return current - 1
-			})
-		}, 1000)
-
 		await authClient.emailOtp.sendVerificationOtp({
 			email: email,
 			type: "sign-in"
@@ -95,11 +77,10 @@ export function OneTimeLoginForm({ email }: Props) {
 					{/* TODO: Add toast or notification */}
 					<Link
 						href="#"
-						aria-disabled={resentCode}
-						className={`underline hover:cursor-pointer ${resentCode ? "pointer-events-none text-muted-foreground" : "text-secondary"}`}
+						className={`underline hover:cursor-pointer text-secondary`}
 						onClick={resendOTP}
 					>
-						{resentCode ? `Resend again in ${Math.ceil(resendCooldown / 60)}m` : "Resend code"}
+						Resend Code
 					</Link>
 				</div>
 			</form>

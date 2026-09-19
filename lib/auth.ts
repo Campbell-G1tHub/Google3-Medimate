@@ -11,6 +11,11 @@ const trustedOrigins = process.env.AUTH_TRUSTED_ORIGINS?.split(",")
 
 export const auth = betterAuth({
 	trustedOrigins,
+	rateLimit: {
+		enabled: process.env.NODE_ENV === "production",
+		window: 10,
+		max: 100
+	},
 	user: {
 		modelName: "volunteer",
 	},
