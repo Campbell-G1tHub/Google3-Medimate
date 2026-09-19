@@ -15,19 +15,20 @@ export function ForgotPasswordForm() {
 	const handleSubmit = async (event: React.SubmitEvent) => {
 		event.preventDefault();
 		const resetPasswordButtonClicked = event.nativeEvent.submitter?.id === "reset-password"
-		if (resetPasswordButtonClicked) {
-			await authClient.requestPasswordReset({
+		if (!resetPasswordButtonClicked) {
+			await authClient.emailOtp.sendVerificationOtp({
 				email: email,
-				redirectTo: `${window.location.origin}/reset-password`,
+				type: "sign-in"
 			})
-			router.push(`/forgot-password/confirm-reset?email=${email}`)
+			router.push(`/one-time-login?email=${email}`)
+			return
 		}
 
-		// await authClient.emailOtp.sendVerificationOtp({
-		// 	email: email,
-		// 	type: resetPasswordButtonClicked ? "forget-password" : "sign-in"
-		// })
-
+		await authClient.requestPasswordReset({
+			email: email,
+			redirectTo: `${window.location.origin}/reset-password`,
+		})
+		router.push(`/forgot-password/confirm-reset?email=${email}`)
 	}
 
 	return (
