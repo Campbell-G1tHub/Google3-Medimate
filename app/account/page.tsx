@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { signOut, useSession } from "@/lib/auth-client"
@@ -47,9 +46,9 @@ export default function AccountPage() {
 							<div className="alert alert-warning">
 								<span>Your session has expired. Sign in to continue.</span>
 							</div>
-							<Link href="/login" className="btn btn-primary w-full">
+							<Button to="/login" variant="accent" fullWidth>
 								Go to sign in
-							</Link>
+							</Button>
 						</>
 					)}
 				</div>

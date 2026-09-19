@@ -1,5 +1,5 @@
 import { AuthShell } from "@/components/auth/auth-shell"
-import Link from "next/link";
+import { Button } from "@/components/ui/button"
 
 
 interface PageProps {
@@ -14,7 +14,7 @@ export default async function Page({ searchParams }: PageProps) {
   return (
     <AuthShell title="Please check your email" description={description}>
       <div className="flex justify-center">
-        <Link href="/login" className="btn btn-primary rounded-full shadow-none">Back to Login</Link>
+        <Button to="/login" variant="accent">Back to Login</Button>
       </div>
     </AuthShell>
   )

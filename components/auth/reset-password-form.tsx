@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { FormAlert } from "@/components/auth/form-alert"
@@ -88,9 +87,9 @@ export function ResetPasswordForm({ invalidToken, token }: ResetPasswordFormProp
 					</Button>
 				</form>
 			) : (
-				<Link href="/forgot-password" className="btn btn-primary w-full">
+				<Button to="/forgot-password" variant="accent" fullWidth>
 					Request a new reset link
-				</Link>
+				</Button>
 			)}
 		</>
 	)

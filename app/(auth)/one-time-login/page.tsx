@@ -8,7 +8,6 @@ interface PageProps {
 }
 
 export default async function OneTimeLoginPage({ searchParams }: PageProps) {
-
 	const params = await searchParams
 	const email = params.email as string ?? null;
 
