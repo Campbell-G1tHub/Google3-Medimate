@@ -2,12 +2,13 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { FormAlert } from "@/components/auth/form-alert"
 import { SocialAuthButtons, type SocialProvider } from "@/components/auth/social-auth-buttons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { signUp } from "@/lib/auth-client"
+import { authClient, signUp } from "@/lib/auth-client"
 import { PasswordVisibilityIcon } from "./password-visibility-icon"
 import { Separator } from "../ui"
 
@@ -59,6 +60,12 @@ export function SignUpForm({ enabledSocialProviders, oauthError }: SignUpFormPro
 			setError(error.message ?? "We could not create your account. Please try again.")
 			return
 		}
+
+		void authClient.emailOtp.sendVerificationOtp({
+			email: formData.email,
+			type: "email-verification",
+		})
+
 		router.push(`/verify-email?email=${encodeURIComponent(email)}`)
 	}
 

@@ -7,7 +7,7 @@ import { FormAlert } from "@/components/auth/form-alert"
 import { SocialAuthButtons, type SocialProvider } from "@/components/auth/social-auth-buttons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { signIn } from "@/lib/auth-client"
+import { authClient, signIn } from "@/lib/auth-client"
 import { Separator } from "../ui"
 import { PasswordVisibilityIcon } from "./password-visibility-icon"
 import { Separator } from "../ui"
@@ -53,6 +53,10 @@ export function LoginForm({
 
 		if (result.error) {
 			if (result.error.code === "EMAIL_NOT_VERIFIED") {
+				void authClient.emailOtp.sendVerificationOtp({
+					email: formData.email,
+					type: "email-verification",
+				})
 				router.push(`/verify-email?email=${encodeURIComponent(formData.email.trim())}`)
 				return
 			}
