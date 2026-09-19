@@ -1,18 +1,19 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { FormAlert } from "@/components/auth/form-alert"
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { signUp } from "@/lib/auth-client"
+import { authClient, signUp } from "@/lib/auth-client"
 import { PasswordVisibilityIcon } from "./password-visibility-icon"
 import { Separator } from "../ui"
 
 export function SignUpForm() {
+	const router = useRouter()
 	const [error, setError] = useState("")
-	const [message, setMessage] = useState("")
 	const [pending, setPending] = useState(false)
 	const [showPassword, setShowPassword] = useState(false)
 	const [showConfirmation, setShowConfirmation] = useState(false)
@@ -25,7 +26,6 @@ export function SignUpForm() {
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
 		setError("")
-		setMessage("")
 
 		const email = formData.email.trim()
 		const password = formData.password
@@ -43,6 +43,7 @@ export function SignUpForm() {
 			password,
 			callbackURL: "/login?verified=true",
 		})
+
 		setPending(false)
 
 		if (result.error) {
@@ -50,12 +51,12 @@ export function SignUpForm() {
 			return
 		}
 
-		setMessage("Account created. Check your inbox and verify your email before signing in.")
-		setFormData({
-			email: "",
-			password: "",
-			confirmPassword: ""
+		void authClient.emailOtp.sendVerificationOtp({
+			email: formData.email,
+			type: "email-verification",
 		})
+
+		router.push(`/verify-email?email=${encodeURIComponent(email)}`)
 	}
 
 	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -65,7 +66,6 @@ export function SignUpForm() {
 	return (
 		<div className="mx-auto max-w-[22rem]">
 			<FormAlert message={error} />
-			<FormAlert message={message} type="success" />
 
 			<form className="space-y-3" onSubmit={handleSubmit}>
 				<Input

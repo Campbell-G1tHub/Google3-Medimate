@@ -1,11 +1,7 @@
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import { emailOTP } from "better-auth/plugins"
-import {
-	sendOneTimePasswordEmail,
-	sendPasswordResetEmail,
-	sendVerificationEmail,
-} from "@/lib/auth-email"
+import { sendOneTimePasswordEmail, sendPasswordResetEmail } from "@/lib/auth-email"
 import { prisma } from "@/lib/prisma"
 import { nextCookies } from "better-auth/next-js"
 
@@ -44,9 +40,6 @@ export const auth = betterAuth({
 		sendOnSignUp: true,
 		autoSignInAfterVerification: false,
 		expiresIn: 60 * 60,
-		sendVerificationEmail: async ({ user, url }) => {
-			await sendVerificationEmail(user.email, url)
-		},
 	},
 	plugins: [
 		nextCookies(),

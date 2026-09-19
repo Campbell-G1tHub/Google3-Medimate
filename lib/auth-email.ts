@@ -76,14 +76,6 @@ async function sendAuthenticationEmail({
 	}
 }
 
-export async function sendVerificationEmail(email: string, verificationUrl: string) {
-	await sendAuthenticationEmail({
-		to: email,
-		subject: "Verify your MediMate email address",
-		text: `Verify your MediMate email address by opening this link:\n\n${verificationUrl}\n\nThis link expires in one hour. If you did not create this account, you can ignore this email.`,
-	})
-}
-
 export async function sendPasswordResetEmail(email: string, resetUrl: string) {
 	await sendAuthenticationEmail({
 		to: email,

@@ -8,7 +8,7 @@ import { FormAlert } from "@/components/auth/form-alert"
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { signIn } from "@/lib/auth-client"
+import { authClient, signIn } from "@/lib/auth-client"
 import { Separator } from "../ui"
 
 interface LoginFormProps {
@@ -40,6 +40,14 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 		setPending(false)
 
 		if (result.error) {
+			if (result.error.code === "EMAIL_NOT_VERIFIED") {
+				void authClient.emailOtp.sendVerificationOtp({
+					email: formData.email,
+					type: "email-verification",
+				})
+				router.push(`/verify-email?email=${encodeURIComponent(formData.email.trim())}`)
+				return
+			}
 			setError(result.error.message ?? "Unable to sign in. Check your email and password.")
 			return
 		}
