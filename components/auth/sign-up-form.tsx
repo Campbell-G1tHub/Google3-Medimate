@@ -60,12 +60,6 @@ export function SignUpForm({ enabledSocialProviders, oauthError }: SignUpFormPro
 			setError(error.message ?? "We could not create your account. Please try again.")
 			return
 		}
-
-		void authClient.emailOtp.sendVerificationOtp({
-			email: formData.email,
-			type: "email-verification",
-		})
-
 		router.push(`/verify-email?email=${encodeURIComponent(email)}`)
 	}
 

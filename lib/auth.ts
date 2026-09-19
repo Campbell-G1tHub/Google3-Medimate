@@ -61,7 +61,6 @@ export const auth = betterAuth({
 	emailVerification: {
 		sendOnSignUp: true,
 		autoSignInAfterVerification: false,
-		expiresIn: 60 * 60,
 	},
 	plugins: [
 		emailOTP({

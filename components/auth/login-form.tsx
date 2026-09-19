@@ -53,10 +53,6 @@ export function LoginForm({
 
 		if (result.error) {
 			if (result.error.code === "EMAIL_NOT_VERIFIED") {
-				void authClient.emailOtp.sendVerificationOtp({
-					email: formData.email,
-					type: "email-verification",
-				})
 				router.push(`/verify-email?email=${encodeURIComponent(formData.email.trim())}`)
 				return
 			}
