@@ -1,5 +1,3 @@
-import Link from "next/link"
-import Image from "next/image"
 import type { ReactNode } from "react"
 
 interface AuthShellProps {
@@ -16,17 +14,7 @@ export function AuthShell({
 	title,
 }: AuthShellProps) {
 	return (
-		<main className="flex min-h-dvh flex-col bg-base-100 text-neutral">
-			<header className="flex h-14 shrink-0 items-center justify-between bg-primary px-5 text-primary-content sm:px-8 lg:px-12">
-				<Link href="/" className="flex items-center gap-3" aria-label="Medical Pantry home">
-					<Image src="/icons/icon-transparent.png" alt="" height={30} width={30} />
-					<span className="text-base font-bold sm:text-lg">Medical Pantry</span>
-				</Link>
-				<Link href="/" className="text-xl font-bold sm:text-2xl">
-					MediMate
-				</Link>
-			</header>
-
+		<div className="flex min-h-dvh flex-col bg-base-100 text-neutral">
 			<section
 				className={`flex flex-1 justify-center px-5 ${compact ? "pt-12 pb-16 sm:pt-14" : "pt-14 pb-14 sm:pt-24 lg:pt-32"
 					}`}
@@ -43,7 +31,6 @@ export function AuthShell({
 					<div className="mx-auto mt-3 w-full max-w-[22rem]">{children}</div>
 				</div>
 			</section>
-		</main>
-
+		</div>
 	)
 }

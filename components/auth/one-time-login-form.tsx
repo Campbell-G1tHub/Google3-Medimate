@@ -35,7 +35,7 @@ export function OneTimeLoginForm({ email }: Props) {
 			return
 		}
 
-		router.push("/account")
+		router.push("/home")
 		router.refresh()
 	}
 

@@ -18,6 +18,13 @@ export const auth = betterAuth({
 	},
 	user: {
 		modelName: "volunteer",
+		additionalFields: {
+			onboardingCompleted: {
+				type: "boolean",
+				defaultValue: false,
+				input: false,
+			},
+		},
 	},
 	verification: {
 		fields: {

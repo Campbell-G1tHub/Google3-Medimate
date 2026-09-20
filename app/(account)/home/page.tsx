@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { signOut, useSession } from "@/lib/auth-client"
 
-export default function AccountPage() {
+export default function Page() {
 	const router = useRouter()
 	const { data: session, isPending } = useSession()
 

@@ -48,9 +48,9 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 			return
 		}
 
-		router.push("/account")
-		router.refresh()
 		setFormData({ email: "", password: "", rememberMe: false })
+		router.push("/home")
+		router.refresh()
 	}
 
 	return (

@@ -32,6 +32,7 @@ model EmergencyContact {
   id                    String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   declarantId           String                 @unique(map: "emergency_contacts_volunteer_id_unique") @map("declarant_id") @db.Uuid
   fullName              String                 @map("full_name")
+  email                 String
   relationship          String
   phoneNumber           String                 @map("phone_number")
   declarant             Volunteer              @relation(fields: [declarantId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "emergency_contact_volunteer_id_foreign")
@@ -113,6 +114,7 @@ model Volunteer {
   name                      String
   email                     String                     @unique(map: "volunteer_email_unique")
   emailVerified             Boolean                    @default(false) @map("email_verified")
+  onboardingCompleted       Boolean                    @default(false) @map("onboarding_completed")
   image                     String?
   role                      volunteerRole              @default(VOLUNTEER)
   createdAt                 DateTime                   @default(now()) @map("created_at") @db.Timestamptz(0)
