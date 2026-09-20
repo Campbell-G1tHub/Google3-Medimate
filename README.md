@@ -62,8 +62,6 @@ Inside the container the app uses `DATABASE_URL=postgresql://…@db:5432/…`
 ## Useful commands
 
 ```bash
-pnpm run db:generate # regenerate prisma client to use in application code 
-pnpm run db:migrate # Apply migrations to your local DB
 docker compose logs -f app        # follow app logs
 docker compose ps                 # status / health
 docker compose up db # run database only
@@ -74,7 +72,7 @@ docker compose down               # stop
 ## Prisma
 
 - Edit models in `schema.prisma`, then create a migration with
-  `prisma migrate dev --name <name>` (or `db:migrate` in package.json).
+  `prisma migrate dev --name <name>`.
 - The Prisma client is generated into `lib/generated/prisma` by
   `prisma generate` — it runs automatically on install (postinstall).
 - Host-side tooling (e.g. `prisma studio`) uses the `DATABASE_URL` in `.env`
