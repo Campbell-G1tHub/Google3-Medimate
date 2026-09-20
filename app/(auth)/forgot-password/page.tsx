@@ -10,7 +10,7 @@ export default function ForgotPasswordPage() {
 	return (
 		<AuthShell
 			title="Reset your password"
-			description="Choose a secure email link or a one-time reset code."
+			description="Enter your email address, and we'll either send a link to reset your password, or send you a one-time link to login."
 		>
 			<ForgotPasswordForm />
 		</AuthShell>

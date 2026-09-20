@@ -44,5 +44,6 @@ export function AuthShell({
 				</div>
 			</section>
 		</main>
+
 	)
 }

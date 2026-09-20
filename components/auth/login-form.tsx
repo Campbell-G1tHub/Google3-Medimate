@@ -9,6 +9,7 @@ import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { signIn } from "@/lib/auth-client"
+import { Separator } from "../ui"
 
 interface LoginFormProps {
 	passwordReset?: boolean
@@ -39,6 +40,10 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 		setPending(false)
 
 		if (result.error) {
+			if (result.error.code === "EMAIL_NOT_VERIFIED") {
+				router.push(`/verify-email?email=${encodeURIComponent(formData.email.trim())}`)
+				return
+			}
 			setError(result.error.message ?? "Unable to sign in. Check your email and password.")
 			return
 		}
@@ -127,7 +132,7 @@ export function LoginForm({ passwordReset, verified }: LoginFormProps) {
 					</Button>
 				</div>
 			</form>
-			<div className="divider text-sm font-semibold">OR</div>
+			<Separator label="OR" />
 
 			<div className="mx-auto mt-12 max-w-[18.5rem]">
 				<SocialAuthButtons action="Continue" />

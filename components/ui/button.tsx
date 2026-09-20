@@ -1,3 +1,4 @@
+import Link from "next/link"
 import type { ButtonHTMLAttributes, ReactNode } from "react"
 
 const variantClasses = {
@@ -17,9 +18,11 @@ const sizeClasses = {
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	children: ReactNode
+	to?: string
 	fullWidth?: boolean
 	loading?: boolean
 	size?: keyof typeof sizeClasses
+	rounded?: boolean
 	variant?: keyof typeof variantClasses
 }
 
@@ -28,20 +31,33 @@ export function Button({
 	className,
 	disabled,
 	fullWidth = false,
+	to,
 	loading = false,
 	size = "medium",
 	variant = "primary",
+	rounded = true,
 	...props
 }: ButtonProps) {
 	const classes = [
-		"btn",
+		"btn shadow-none",
 		variantClasses[variant],
 		sizeClasses[size],
 		fullWidth && "w-full",
+		rounded && "rounded-full",
 		className,
 	]
 		.filter(Boolean)
 		.join(" ")
+
+	if (to) {
+		return (
+			<Link href={to} className={classes} aria-disabled={disabled || loading} aria-busy={loading || undefined}>
+				{loading && <span className="loading loading-spinner loading-sm" aria-hidden="true" />}
+				{children}
+			</Link>
+		)
+	}
+
 
 	return (
 		<button
