@@ -28,6 +28,9 @@ The initial shared set is:
 
 - `Button`: semantic variants, sizes, loading, and disabled behaviour
 - `Input`: label, guidance, validation, and native input properties
+- `Checkbox`: labelled single box, composed into groups with one `register` spread
+- `RadioGroup`: fieldset of radios sharing one name, with optional description and error
+- `Textarea`: multi-line sibling of `Input`
 - `Card`: consistent content grouping with optional title, description, and footer
 
 ## Responsive layout

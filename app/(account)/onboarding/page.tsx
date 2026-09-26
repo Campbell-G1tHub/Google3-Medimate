@@ -7,7 +7,7 @@ export default async function OnboardingPage() {
 
 	return (
 		<div className="mx-auto w-full max-w-xl px-5 py-10">
-			<OnboardingForm defaultEmail={session?.user.email ?? ""}>
+			<OnboardingForm email={session?.user.email ?? ""}>
 				<p>Thank you for your interest in volunteering with Medical Pantry!</p>
 				<p>
 					We believe volunteers are integral to the daily operations of the Medical Pantry and are
