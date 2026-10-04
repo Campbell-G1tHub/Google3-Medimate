@@ -8,20 +8,30 @@ import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { signUp } from "@/lib/auth-client"
-import { PasswordVisibilityIcon } from "./password-visibility-icon"
+import type { SocialProvider } from "@/lib/oauth-providers"
 import { Separator } from "../ui"
+import { PasswordVisibilityIcon } from "./password-visibility-icon"
 
-export function SignUpForm() {
+interface SignUpFormProps {
+	enabledSocialProviders: SocialProvider[]
+	oauthError?: boolean
+}
+
+export function SignUpForm({ enabledSocialProviders, oauthError }: SignUpFormProps) {
 	const router = useRouter()
 	const [error, setError] = useState("")
 	const [pending, setPending] = useState(false)
 	const [showPassword, setShowPassword] = useState(false)
 	const [showConfirmation, setShowConfirmation] = useState(false)
-	const [formData, setFormData] = useState<{ email: string, password: string, confirmPassword: string }>({
+	const [formData, setFormData] = useState<{
+		email: string
+		password: string
+		confirmPassword: string
+	}>({
 		email: "",
 		password: "",
-		confirmPassword: ""
-	});
+		confirmPassword: "",
+	})
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
@@ -54,12 +64,16 @@ export function SignUpForm() {
 	}
 
 	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-		setFormData({ ...formData, [event.target.name]: event.target.value });
+		setFormData({ ...formData, [event.target.name]: event.target.value })
 	}
 
 	return (
 		<div className="mx-auto max-w-[22rem]">
-			<FormAlert message={error} />
+			<FormAlert
+				message={
+					error || (oauthError ? "Social sign-up was not completed. Please try again." : undefined)
+				}
+			/>
 
 			<form className="space-y-3" onSubmit={handleSubmit}>
 				<Input
@@ -131,13 +145,17 @@ export function SignUpForm() {
 				</div>
 			</form>
 			<Separator label="OR" />
-			<SocialAuthButtons action="Sign up" />
+			<SocialAuthButtons
+				action="Sign up"
+				enabledProviders={enabledSocialProviders}
+				onError={setError}
+			/>
 			<p className="mt-4 text-center text-base text-neutral">
 				Already have an account?{" "}
 				<Link href="/login" className="font-normal text-secondary underline">
 					Login
 				</Link>
 			</p>
-		</div >
+		</div>
 	)
 }
