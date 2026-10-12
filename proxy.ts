@@ -15,9 +15,14 @@ export async function proxy(request: NextRequest) {
   if (!user.onboardingCompleted) {
     return NextResponse.redirect(new URL("/onboarding", request.url))
   }
+
+  // Admin pages are for Medical Pantry staff only.
+  if (request.nextUrl.pathname.startsWith("/dashboard/admin") && user.role !== "ADMIN") {
+    return NextResponse.redirect(new URL("/home", request.url))
+  }
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: '/home/:path*',
+  matcher: ['/home/:path*', '/dashboard/:path*'],
 }
