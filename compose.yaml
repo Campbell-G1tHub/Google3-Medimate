@@ -60,6 +60,32 @@ services:
     # non-interactive and idempotent — safe at container start.
     command: sh -c "pnpm dev"
 
+  # End-to-end tests. Only starts with: docker compose --profile test run --rm playwright
+  playwright:
+    profiles: ["test"]
+    build:
+      context: .
+      dockerfile: docker/playwright/Dockerfile
+    container_name: medimate-playwright
+    # Shares the app's network so the browser reaches it on localhost:3000,
+    # which matches BETTER_AUTH_URL and keeps auth cookies valid.
+    network_mode: "service:app"
+    shm_size: 1gb
+    env_file:
+      - .env
+    environment:
+      CI: "true"
+      PLAYWRIGHT_BASE_URL: http://localhost:3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-medimate}:${POSTGRES_PASSWORD:-medimate}@db:5432/${POSTGRES_DB:-medimate}
+    volumes:
+      - ./tests:/app/tests
+      - ./playwright.config.ts:/app/playwright.config.ts
+      - ./playwright-report:/app/playwright-report
+      - ./test-results:/app/test-results
+    depends_on:
+      app:
+        condition: service_started
+
 volumes:
   pgdata:
   node_modules:
