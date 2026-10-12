@@ -18,18 +18,15 @@ function configureVapid() {
 
 	const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
 	const privateKey = process.env.VAPID_PRIVATE_KEY
+	const subject = process.env.VAPID_SUBJECT
 
-	if (!publicKey || !privateKey) {
-		console.warn("Push notifications are disabled: VAPID keys are not set.")
+	if (!publicKey || !privateKey || !subject) {
+		console.warn("Push notifications are disabled: VAPID keys or subject are not set.")
 		vapidConfigured = false
 		return vapidConfigured
 	}
 
-	webpush.setVapidDetails(
-		process.env.VAPID_SUBJECT,
-		publicKey,
-		privateKey,
-	)
+	webpush.setVapidDetails(subject, publicKey, privateKey)
 	vapidConfigured = true
 	return vapidConfigured
 }
