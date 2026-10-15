@@ -9,6 +9,7 @@ import {
 	type ApplicationSort,
 	type ApplicationStatus,
 } from "@/lib/validation/volunteer-application"
+import { ApplicationReview } from "./application-review"
 
 const SEARCH_API = "/api/admin/volunteer-applications/search"
 const SEARCH_DELAY_MS = 300
@@ -34,6 +35,7 @@ export function ApplicationList() {
 	const [applications, setApplications] = useState<ApplicationSummary[]>([])
 	const [state, setState] = useState<"loading" | "ready" | "error">("loading")
 	const [reloadKey, setReloadKey] = useState(0)
+	const [reviewingId, setReviewingId] = useState<string | null>(null)
 
 	useEffect(() => {
 		const timer = window.setTimeout(() => setDebouncedQuery(query), SEARCH_DELAY_MS)
@@ -130,15 +132,33 @@ export function ApplicationList() {
 			) : (
 				<ul aria-busy={state === "loading"} className="flex flex-col gap-2">
 					{applications.map((application) => (
-						<ApplicationRow key={application.id} application={application} />
+						<ApplicationRow
+							key={application.id}
+							application={application}
+							onReview={() => setReviewingId(application.id)}
+						/>
 					))}
 				</ul>
+			)}
+
+			{reviewingId && (
+				<ApplicationReview
+					key={reviewingId}
+					applicationId={reviewingId}
+					onClose={() => setReviewingId(null)}
+					onReviewed={reload}
+				/>
 			)}
 		</section>
 	)
 }
 
-function ApplicationRow({ application }: { application: ApplicationSummary }) {
+interface ApplicationRowProps {
+	application: ApplicationSummary
+	onReview: () => void
+}
+
+function ApplicationRow({ application, onReview }: ApplicationRowProps) {
 	const submitted = new Date(application.submittedAt)
 
 	return (
@@ -156,6 +176,7 @@ function ApplicationRow({ application }: { application: ApplicationSummary }) {
 				variant="accent"
 				size="small"
 				className="shrink-0 px-4"
+				onClick={onReview}
 				aria-label={`Review ${application.fullName}'s application`}
 			>
 				Review
