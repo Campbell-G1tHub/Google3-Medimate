@@ -133,7 +133,7 @@ export function ApplicationReview({ applicationId, onClose, onReviewed }: Applic
 				aria-labelledby="review-application-title"
 				onClose={onClose}
 			>
-				<div className="modal-box flex max-h-[90vh] w-11/12 max-w-3xl flex-col overflow-hidden border border-primary p-0!">
+				<div className="flex max-h-[90vh] w-11/12 max-w-3xl flex-col overflow-hidden rounded-box border border-primary bg-base-100 shadow-xl">
 					<header className="flex items-center justify-between gap-3 bg-primary px-5 py-3 text-primary-content">
 						<h2 id="review-application-title" className="text-lg">
 							Review Volunteer Application
@@ -187,15 +187,15 @@ export function ApplicationReview({ applicationId, onClose, onReviewed }: Applic
 									{reviewError}
 								</div>
 							)}
-							<div className="grid grid-cols-2 gap-3">
+							<div className="flex gap-3">
 								<button
 									type="button"
 									onClick={() => confirm("REJECTED")}
-									className="btn btn-outline btn-accent rounded-full shadow-none"
+									className="btn btn-outline btn-accent flex-1 rounded-full shadow-none"
 								>
 									Reject
 								</button>
-								<Button variant="accent" onClick={() => confirm("APPROVED")}>
+								<Button variant="accent" className="flex-1" onClick={() => confirm("APPROVED")}>
 									Approve
 								</Button>
 							</div>
