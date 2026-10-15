@@ -99,7 +99,7 @@ export function OnboardingForm({ children, email }: OnboardingFormProps) {
 	//
 	// `submitOnboarding` writes `VolunteerInformation`, `EmergencyContact`, `Referees`
 	// and `VolunteerGroupPreference`, sets `volunteers.onboarding_completed`, and the
-	// client then navigates to `/home`.
+	// client then navigates to `/application-status` to wait for approval.
 	const handleFinalSubmit = methods.handleSubmit((values) => {
 		setSubmitError("")
 		startTransition(async () => {
@@ -109,7 +109,7 @@ export function OnboardingForm({ children, email }: OnboardingFormProps) {
 				return
 			}
 
-			router.push("/home")
+			router.push("/application-status")
 			router.refresh()
 		})
 	})
