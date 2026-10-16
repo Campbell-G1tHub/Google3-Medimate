@@ -78,6 +78,11 @@ docker compose down               # stop
 - Host-side tooling (e.g. `prisma studio`) uses the `DATABASE_URL` in `.env`
   and talks to the compose db on `localhost:5432`.
 
+## Create development admin user
+- For docker compose stack: 
+  - Admin: `docker compose exec app node scripts/create-dev-user.mjs admin@localhost.local password ADMIN`
+  - Volunteer: `docker compose exec app node scripts/create-dev-user.mjs volunteer@localhost.local password VOLUNTEER`
+
 # Authentication
 
 Authentication uses Better Auth with the shared Prisma client and Frank's application schema. Copy
