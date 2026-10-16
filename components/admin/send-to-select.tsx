@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useId, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ALL_VOLUNTEERS, describeAudience, SEND_TO_OPTIONS } from "@/lib/validation/announcement"
 
@@ -16,6 +16,23 @@ export function SendToSelect({ value, onChange, onBlur, error }: SendToSelectPro
 	const panelId = useId()
 	const errorId = useId()
 	const [isOpen, setIsOpen] = useState(false)
+	const containerRef = useRef<HTMLDivElement>(null)
+
+	useEffect(() => {
+		if (!isOpen) {
+			return
+		}
+
+		function closeOnOutsidePress(event: PointerEvent) {
+			if (!containerRef.current?.contains(event.target as Node)) {
+				setIsOpen(false)
+				onBlur?.()
+			}
+		}
+
+		document.addEventListener("pointerdown", closeOnOutsidePress)
+		return () => document.removeEventListener("pointerdown", closeOnOutsidePress)
+	}, [isOpen, onBlur])
 
 	// "All volunteers" and specific groups are mutually exclusive.
 	function toggle(option: string, checked: boolean) {
@@ -34,6 +51,7 @@ export function SendToSelect({ value, onChange, onBlur, error }: SendToSelectPro
 		<fieldset className="fieldset w-full sm:max-w-xs">
 			<legend className="fieldset-legend text-base font-bold text-primary">Send to</legend>
 			<div
+				ref={containerRef}
 				className={
 					isOpen ? "overflow-hidden rounded-[1.25rem] border border-primary bg-base-100" : undefined
 				}
