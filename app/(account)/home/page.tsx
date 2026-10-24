@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { NotificationBell } from "@/components/notifications/notification-bell"
 import { Button } from "@/components/ui/button"
 import { signOut, useSession } from "@/lib/auth-client"
 
@@ -18,11 +19,14 @@ export default function Page() {
 		<main className="flex min-h-screen items-center justify-center bg-base-200 px-5 py-10">
 			<section className="card w-full max-w-lg border border-base-300 bg-base-100 shadow-sm">
 				<div className="card-body gap-6 p-7 sm:p-9">
-					<div>
-						<p className="text-xs font-semibold tracking-[0.18em] text-secondary uppercase">
-							Medical Pantry
-						</p>
-						<h1 className="mt-1 text-3xl text-primary">Your MediMate account</h1>
+					<div className="flex items-start justify-between gap-3">
+						<div>
+							<p className="text-xs font-semibold tracking-[0.18em] text-secondary uppercase">
+								Medical Pantry
+							</p>
+							<h1 className="mt-1 text-3xl text-primary">Your MediMate account</h1>
+						</div>
+						{session && <NotificationBell />}
 					</div>
 
 					{isPending ? (

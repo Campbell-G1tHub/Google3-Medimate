@@ -11,7 +11,9 @@
     "prepare": "husky",
     "postinstall": "prisma generate",
     "db:studio": "prisma studio",
-    "test:auth": "node scripts/auth-smoke-test.mjs"
+    "db:dev-admin": "node scripts/create-dev-user.mjs admin@localhost.local password ADMIN",
+    "test:auth": "node scripts/auth-smoke-test.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -29,12 +31,14 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.8",
+    "@playwright/test": "^1.64.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/web-push": "^3.6.4",
     "daisyui": "5.7.22",
     "dotenv": "^17.4.2",
     "eslint": "^9",
