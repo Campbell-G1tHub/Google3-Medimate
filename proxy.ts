@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { auth } from './lib/auth'
+import { hasAppAccess } from './lib/volunteer-access'
 
 export async function proxy(request: NextRequest) {
   const session = await auth.api.getSession({
@@ -14,6 +15,10 @@ export async function proxy(request: NextRequest) {
   const user = session.user;
   if (!user.onboardingCompleted) {
     return NextResponse.redirect(new URL("/onboarding", request.url))
+  }
+
+  if (!(await hasAppAccess(user))) {
+    return NextResponse.redirect(new URL("/application-status", request.url))
   }
 
   // Admin pages are for Medical Pantry staff only.

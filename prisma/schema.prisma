@@ -151,7 +151,8 @@ model Volunteer {
   posts                     Post[]
   sessions                  Session[]
   events                    Event[]
-  information               VolunteerInformation?
+  information               VolunteerInformation?      @relation("VolunteerApplication")
+  reviewedApplications      VolunteerInformation[]     @relation("ApplicationReviewer")
   documents                 Document[]
   emergencyContact          EmergencyContact?
   referees                  Referees[]
@@ -266,6 +267,12 @@ model EventAttendee {
   @@map("event_attendees")
 }
 
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model VolunteerInformation {
   id                  String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   volunteerId         String                     @unique(map: "volunteer_profiles_user_id_unique") @map("volunteer_id") @db.Uuid
@@ -287,10 +294,16 @@ model VolunteerInformation {
   newsletterOptIn     Boolean                    @map("newsletter_opt_in")
   referralSources     String                     @map("referral_sources") @db.VarChar(255)
   createdAt           DateTime                   @default(now()) @map("created_at") @db.Timestamptz(0)
+  status              ApplicationStatus          @default(PENDING)
+  reviewedAt          DateTime?                  @map("reviewed_at") @db.Timestamptz(0)
+  reviewedById        String?                    @map("reviewed_by_id") @db.Uuid
   documents           Document[]
   emergencyContacts   EmergencyContact?          @relation(fields: [emergencyContactId], references: [id])
   referees            Referees[]
   groups              VolunteerGroupPreference[]
-  volunteer           Volunteer                  @relation(fields: [volunteerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "volunteer_information_volunteer_id_foreign")
+  volunteer           Volunteer                  @relation("VolunteerApplication", fields: [volunteerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "volunteer_information_volunteer_id_foreign")
+  reviewedBy          Volunteer?                 @relation("ApplicationReviewer", fields: [reviewedById], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "volunteer_information_reviewed_by_id_foreign")
   emergencyContactId  String?                    @db.Uuid
+
+  @@index([status, createdAt])
 }

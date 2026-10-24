@@ -22,6 +22,7 @@ export async function createAnnouncement(authorId: string, input: AnnouncementIn
 			where: {
 				id: { not: authorId },
 				onboardingCompleted: true,
+				information: { status: "APPROVED" },
 				...(input.sendToAll
 					? {}
 					: {
