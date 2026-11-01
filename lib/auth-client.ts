@@ -5,5 +5,13 @@ export const authClient = createAuthClient({
 	plugins: [emailOTPClient()],
 })
 
-export const { requestPasswordReset, resetPassword, signIn, signOut, signUp, useSession } =
-	authClient
+export const {
+	changePassword,
+	deleteUser,
+	requestPasswordReset,
+	resetPassword,
+	signIn,
+	signOut,
+	signUp,
+	useSession,
+} = authClient

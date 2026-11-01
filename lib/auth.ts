@@ -22,6 +22,41 @@ export const auth = betterAuth({
 	},
 	user: {
 		modelName: "volunteer",
+		deleteUser: {
+			enabled: true,
+			beforeDelete: async (user) => {
+				const createdEventIds = (
+					await prisma.event.findMany({
+						where: { creatorId: user.id },
+						select: { id: true },
+					})
+				).map((event) => event.id)
+
+				await prisma.$transaction(async (tx) => {
+					await tx.notification.deleteMany({
+						where: {
+							post: {
+								OR: [{ authorId: user.id }, { eventId: { in: createdEventIds } }],
+							},
+						},
+					})
+					await tx.post.deleteMany({
+						where: { OR: [{ authorId: user.id }, { eventId: { in: createdEventIds } }] },
+					})
+					await tx.eventAttendee.deleteMany({
+						where: { OR: [{ volunteerId: user.id }, { eventId: { in: createdEventIds } }] },
+					})
+					await tx.event.deleteMany({ where: { creatorId: user.id } })
+					await tx.document.deleteMany({ where: { volunteerId: user.id } })
+					await tx.referees.deleteMany({ where: { volunteerId: user.id } })
+					await tx.volunteerGroupPreference.deleteMany({ where: { volunteerId: user.id } })
+					await tx.notification_Permission.deleteMany({ where: { volunteerId: user.id } })
+					await tx.volunteerNotificationSettings.deleteMany({ where: { volunteerId: user.id } })
+					await tx.volunteerInformation.deleteMany({ where: { volunteerId: user.id } })
+					await tx.emergencyContact.deleteMany({ where: { declarantId: user.id } })
+				})
+			},
+		},
 		additionalFields: {
 			onboardingCompleted: {
 				type: "boolean",
