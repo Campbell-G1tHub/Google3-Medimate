@@ -12,7 +12,9 @@ export default async function OpportunitiesPage() {
 	}
 
 	const events = await prisma.event.findMany({
-		where: { status: "OPEN" },
+		where: {
+			OR: [{ status: "OPEN" }, { attendees: { some: { volunteerId: session.user.id } } }],
+		},
 		orderBy: { startsAt: "asc" },
 		select: {
 			id: true,

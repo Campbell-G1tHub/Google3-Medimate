@@ -37,3 +37,25 @@ export async function POST(request: Request, context: { params: Promise<{ eventI
 
 	return Response.json({ registration }, { status: 201 })
 }
+
+export async function DELETE(request: Request, context: { params: Promise<{ eventId: string }> }) {
+	const session = await auth.api.getSession({ headers: request.headers })
+
+	if (!session) {
+		return Response.json({ error: "Authentication is required." }, { status: 401 })
+	}
+
+	const { eventId } = await context.params
+	const registration = await prisma.eventAttendee.findFirst({
+		where: { eventId, volunteerId: session.user.id },
+		select: { id: true },
+	})
+
+	if (!registration) {
+		return Response.json({ error: "You are not registered for this event." }, { status: 404 })
+	}
+
+	await prisma.eventAttendee.delete({ where: { id: registration.id } })
+
+	return Response.json({ cancelled: true })
+}
