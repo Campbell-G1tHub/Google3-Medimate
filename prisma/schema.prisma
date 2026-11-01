@@ -274,6 +274,7 @@ model EventAttendee {
   volunteerId String         @map("volunteer_id") @db.Uuid
   status      AttendeeStatus @default(ATTENDING)
   createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(0)
+  ordersPacked Int           @default(0) @map("orders_packed")
   event       Event          @relation(fields: [eventId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "event_attendee_event_id_foreign")
   attendee    Volunteer      @relation(fields: [volunteerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "event_attendees")
 
@@ -292,6 +293,8 @@ model VolunteerInformation {
   skillsAndStrengths  String                     @map("skills_and_strengths")
   medicalConditions   String?                    @map("medical_conditions")
   carType             String?                    @map("car_type")
+  forkliftLicense     Boolean                    @default(false) @map("forklift_license")
+  firstAid            Boolean                    @default(false) @map("first_aid")
   frequentSuburbs     String?                    @map("frequent_suburbs")
   frequency           String                     @db.VarChar(255)
   availability        String                     @db.VarChar(255)
