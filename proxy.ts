@@ -24,5 +24,14 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/home/:path*', '/dashboard/:path*'],
+  matcher: [
+    '/home/:path*',
+    '/dashboard/:path*',
+    // Nav destinations that have no page yet; guarding them now keeps them behind
+    // authentication as soon as they are built.
+    '/opportunities/:path*',
+    '/inbox/:path*',
+    '/profile/:path*',
+    '/settings/:path*',
+  ],
 }
