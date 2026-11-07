@@ -83,6 +83,18 @@ docker compose down               # stop
   - Admin: `docker compose exec app node scripts/create-dev-user.mjs admin@localhost.local password ADMIN`
   - Volunteer: `docker compose exec app node scripts/create-dev-user.mjs volunteer@localhost.local password VOLUNTEER`
 
+## Seed test opportunities
+`scripts/seed-opportunities.mjs` inserts 16 `OPEN` events (Melbourne locations, lorem ipsum copy,
+dates spread over the next four weeks) so `/opportunities` has data to list. Rows are matched on
+title, so re-running refreshes them without losing sign-ups. Events are owned by the first `ADMIN`
+volunteer, or by a new `Medimate Admin` user when no admin exists yet.
+
+```bash
+pnpm db:seed-opportunities              # host, uses DATABASE_URL from .env
+docker compose exec app pnpm db:seed-opportunities
+pnpm db:seed-opportunities --reset      # delete the seeded opportunities first
+```
+
 # Authentication
 
 Authentication uses Better Auth with the shared Prisma client and Frank's application schema. Copy

@@ -162,18 +162,18 @@ export function ProfilePageContent({ initialProfile }: { initialProfile: Profile
 		const body =
 			editing === "personal"
 				? {
-						section: "personal",
-						firstName: draft.firstName,
-						lastName: draft.lastName,
-						mobile: draft.mobile,
-						address: draft.address,
-					}
+					section: "personal",
+					firstName: draft.firstName,
+					lastName: draft.lastName,
+					mobile: draft.mobile,
+					address: draft.address,
+				}
 				: {
-						section: "logistics",
-						carType: draft.carType,
-						forkliftLicense: draft.forkliftLicense,
-						firstAid: draft.firstAid,
-					}
+					section: "logistics",
+					carType: draft.carType,
+					forkliftLicense: draft.forkliftLicense,
+					firstAid: draft.firstAid,
+				}
 		const response = await fetch("/api/profile", {
 			method: "PUT",
 			headers: { "Content-Type": "application/json" },
@@ -321,20 +321,20 @@ export function ProfilePageContent({ initialProfile }: { initialProfile: Profile
 							value={draft.carType}
 							onChange={(value) => setDraft({ ...draft, carType: value })}
 						/>
-						<label className="block text-base font-bold">
+						<div className="block text-base font-bold">
 							Forklift license
 							<YesNo
 								value={draft.forkliftLicense}
 								onChange={(value) => setDraft({ ...draft, forkliftLicense: value })}
 							/>
-						</label>
-						<label className="block text-base font-bold">
+						</div>
+						<div className="block text-base font-bold">
 							First Aid
 							<YesNo
 								value={draft.firstAid}
 								onChange={(value) => setDraft({ ...draft, firstAid: value })}
 							/>
-						</label>
+						</div>
 						{error && <p className="text-sm font-bold text-accent">{error}</p>}
 						<button
 							className="h-10 w-full rounded-full bg-accent text-sm font-bold text-white"

@@ -12,6 +12,7 @@
     "postinstall": "prisma generate",
     "db:studio": "prisma studio",
     "db:dev-admin": "node scripts/create-dev-user.mjs admin@localhost.local password ADMIN",
+    "db:seed-opportunities": "node scripts/seed-opportunities.mjs",
     "test:auth": "node scripts/auth-smoke-test.mjs",
     "test:e2e": "playwright test"
   },
