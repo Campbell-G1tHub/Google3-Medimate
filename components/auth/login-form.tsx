@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { signIn } from "@/lib/auth-client"
 import { PasswordVisibilityIcon } from "./password-visibility-icon"
+import { Separator } from "../ui"
 
 interface LoginFormProps {
 	enabledSocialProviders: SocialProvider[]

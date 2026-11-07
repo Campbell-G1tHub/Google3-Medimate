@@ -32,9 +32,9 @@ export function AppShell({ children, user, title }: AppShellProps) {
 	return (
 		<div className="flex min-h-[calc(100dvh-3.5rem)] flex-col lg:flex-row">
 			{/* Navbar */}
-			<aside className="hidden w-64 shrink-0 flex-col border-r border-base-300 px-4 py-6 lg:flex">
+			<aside className="hidden w-64 shrink-0 flex-col border-r border-base-300 px-4 py-6 lg:sticky lg:top-0 lg:flex lg:h-[calc(100dvh-3.5rem)]">
 				<ProfileSummary user={user} />
-				<nav aria-label="Main" className="mt-8 flex flex-col gap-1">
+				<nav aria-label="Main" className="mt-8 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
 					{navItems.map((item) => (
 						<SidebarLink
 							key={item.href}
@@ -43,19 +43,18 @@ export function AppShell({ children, user, title }: AppShellProps) {
 						/>
 					))}
 				</nav>
-				<div className="mt-auto pt-8">
+				<div className="mt-auto shrink-0 pt-8">
 					<LogoutButton />
 				</div>
 			</aside>
 			<div className="flex min-w-0 flex-1 flex-col ">
 				<div className="sticky top-0 z-30 flex items-center justify-between bg-base-100 px-5 py-2">
 					<h1 className="text-2xl font-bold text-primary md:text-3xl">{title}</h1>
-					<div>
-						<NotificationBell />
+					<div className="flex items-center">
 						<div className="lg:hidden">
 							<LogoutButton variant="compact" />
 						</div>
-
+						<NotificationBell />
 					</div>
 				</div>
 				<Separator />

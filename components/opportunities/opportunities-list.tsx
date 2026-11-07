@@ -358,7 +358,7 @@ export function OpportunitiesList({
 		setter(value === current ? defaultValue : value)
 	}
 	return (
-		<main className="min-h-screen bg-white pb-16 md:pb-0">
+		<main className="bg-white pb-16 md:pb-0">
 			<div className="flex">
 				<section className="min-w-0 flex-1 px-4 py-4 md:px-8 md:py-6">
 					<div className="mt-2">

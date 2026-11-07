@@ -196,7 +196,7 @@ export function ProfilePageContent({ initialProfile }: { initialProfile: Profile
 		completedSection === "logistics" ? "Logistics Details" : "Personal Information"
 
 	return (
-		<div className="flex min-h-[calc(100vh-3.5rem)] bg-white text-primary">
+		<div className="flex bg-white text-primary">
 			<main className="min-w-0 flex-1 px-6 py-3 sm:px-10">
 				<section className="flex items-center gap-4 border-b-2 border-base-300 py-4">
 					<Avatar />

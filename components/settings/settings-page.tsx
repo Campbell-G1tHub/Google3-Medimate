@@ -198,7 +198,7 @@ export function SettingsPageContent({ initialSettings }: { initialSettings: Sett
 	const logout = () => void signOut({ fetchOptions: { onSuccess: () => router.push("/login") } })
 
 	return (
-		<div className="flex min-h-[calc(100vh-3.5rem)] bg-white">
+		<div className="flex bg-white">
 			<div className="min-w-0 flex-1 px-6 py-3 sm:px-10">
 				<div className="max-w-[1080px] pt-3 text-primary">
 					<section className="space-y-3">
