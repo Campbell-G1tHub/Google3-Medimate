@@ -1,5 +1,5 @@
 import { AuthShell } from "@/components/auth/auth-shell"
-import { Button, Card } from "@/components/ui";
+import { Button } from "@/components/ui";
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>

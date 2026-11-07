@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { FormAlert } from "@/components/auth/form-alert"
 import { SocialAuthButtons, type SocialProvider } from "@/components/auth/social-auth-buttons"

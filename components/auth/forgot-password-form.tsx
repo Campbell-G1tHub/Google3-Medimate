@@ -6,7 +6,7 @@ import type React from "react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { authClient, requestPasswordReset } from "@/lib/auth-client"
+import { authClient } from "@/lib/auth-client"
 import { Separator } from "../ui"
 
 export function ForgotPasswordForm() {
