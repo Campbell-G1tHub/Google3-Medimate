@@ -1,16 +1,20 @@
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
+import { nextCookies } from "better-auth/next-js"
 import { emailOTP } from "better-auth/plugins"
 import { sendOneTimePasswordEmail, sendPasswordResetEmail } from "@/lib/auth-email"
+import { socialProviders } from "@/lib/oauth-providers"
 import { prisma } from "@/lib/prisma"
-import { nextCookies } from "better-auth/next-js"
 
-const trustedOrigins = process.env.AUTH_TRUSTED_ORIGINS?.split(",")
-	.map((origin) => origin.trim())
-	.filter(Boolean)
+const trustedOrigins =
+	process.env.AUTH_TRUSTED_ORIGINS?.split(",")
+		.map((origin) => origin.trim())
+		.filter(Boolean) ?? []
 
 export const auth = betterAuth({
+	baseURL: process.env.BETTER_AUTH_URL,
 	trustedOrigins,
+	socialProviders,
 	rateLimit: {
 		enabled: process.env.NODE_ENV === "production",
 		window: 10,
@@ -68,6 +72,6 @@ export const auth = betterAuth({
 				await sendOneTimePasswordEmail(email, otp, type)
 			},
 		}),
-		nextCookies()
+		nextCookies(),
 	],
 })

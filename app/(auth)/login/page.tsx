@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { AuthShell } from "@/components/auth/auth-shell"
 import { LoginForm } from "@/components/auth/login-form"
+import { getEnabledSocialProviders } from "@/lib/oauth-providers"
 
 export const metadata: Metadata = {
 	title: "Sign in | MediMate",
@@ -8,6 +9,7 @@ export const metadata: Metadata = {
 
 interface LoginPageProps {
 	searchParams: Promise<{
+		error?: string
 		reset?: string
 		verified?: string
 	}>
@@ -18,7 +20,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
 	return (
 		<AuthShell title="Login to your MediMate account">
-			<LoginForm passwordReset={params.reset === "true"} verified={params.verified === "true"} />
+			<LoginForm
+				enabledSocialProviders={getEnabledSocialProviders()}
+				oauthError={Boolean(params.error)}
+				passwordReset={params.reset === "true"}
+				verified={params.verified === "true"}
+			/>
 		</AuthShell>
 	)
 }
