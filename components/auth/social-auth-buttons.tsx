@@ -12,19 +12,9 @@ interface SocialAuthButtonsProps {
 
 const providers = [
 	{
-		name: "Apple",
-		icon: "/icons/apple.svg",
-		id: "apple",
-	},
-	{
 		name: "Google",
 		icon: "/icons/google.svg",
 		id: "google",
-	},
-	{
-		name: "Facebook",
-		icon: "/icons/facebook.svg",
-		id: "facebook",
 	},
 ] as const
 
