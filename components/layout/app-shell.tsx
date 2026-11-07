@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation"
 import type { ReactNode } from "react"
 import { LogoutButton } from "./logout-button"
 import { isActiveRoute, NAV_ITEMS, type NavItem } from "./nav-items"
+import { NotificationBell } from "../notifications/notification-bell"
+import { Separator } from "../ui"
 
 /** TODO: The real profile photo is not implemented yet; swap this for the user's avatar. */
 const PLACEHOLDER_AVATAR_SRC = "/icons/icon-transparent.png"
@@ -18,11 +20,12 @@ export interface ShellUser {
 
 interface AppShellProps {
 	children: ReactNode
-	user: ShellUser
+	user: ShellUser,
+	title: string,
 }
 
 
-export function AppShell({ children, user }: AppShellProps) {
+export function AppShell({ children, user, title }: AppShellProps) {
 	const pathname = usePathname()
 	const navItems = NAV_ITEMS.filter((item) => !item.adminOnly || user.isAdmin)
 
@@ -44,13 +47,19 @@ export function AppShell({ children, user }: AppShellProps) {
 					<LogoutButton />
 				</div>
 			</aside>
-			
-			{/* Logout button in mobile mode */}
-			<div className="flex min-w-0 flex-1 flex-col">
-				<div className="sticky top-0 z-30 flex items-center justify-end border-b border-base-300 bg-base-100 px-5 py-2 lg:hidden">
-					<LogoutButton variant="compact" />
+			<div className="flex min-w-0 flex-1 flex-col ">
+				<div className="sticky top-0 z-30 flex items-center justify-between bg-base-100 px-5 py-2">
+					<h1 className="text-2xl font-bold text-primary md:text-3xl">{title}</h1>
+					<div>
+						<NotificationBell />
+						<div className="lg:hidden">
+							<LogoutButton variant="compact" />
+						</div>
+
+					</div>
 				</div>
-				<div className="min-w-0 flex-1 pb-20 lg:pb-0">{children}</div>
+				<Separator />
+				<div className="min-w-0 flex-1 pb-20 lg:pb-0 border-b border-base-300">{children}</div>
 			</div>
 
 			<nav
@@ -96,11 +105,10 @@ function SidebarLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
 		<Link
 			href={item.href}
 			aria-current={isActive ? "page" : undefined}
-			className={`flex items-center gap-3 rounded-full px-4 py-2.5 text-sm ${
-				isActive
-					? "bg-primary font-semibold text-primary-content"
-					: "font-medium text-primary hover:bg-base-200"
-			}`}
+			className={`flex items-center gap-3 rounded-full px-4 py-2.5 text-sm ${isActive
+				? "bg-primary font-semibold text-primary-content"
+				: "font-medium text-primary hover:bg-base-200"
+				}`}
 		>
 			<Icon className="size-5 shrink-0" aria-hidden="true" strokeWidth={1.75} />
 			{item.label}
@@ -117,9 +125,8 @@ function BottomBarLink({ item, isActive }: { item: NavItem; isActive: boolean })
 				href={item.href}
 				aria-label={item.label}
 				aria-current={isActive ? "page" : undefined}
-				className={`flex h-14 items-center justify-center ${
-					isActive ? "bg-primary text-primary-content" : "text-primary hover:bg-base-200"
-				}`}
+				className={`flex h-14 items-center justify-center ${isActive ? "bg-primary text-primary-content" : "text-primary hover:bg-base-200"
+					}`}
 			>
 				<Icon className="size-6" aria-hidden="true" strokeWidth={1.75} />
 			</Link>

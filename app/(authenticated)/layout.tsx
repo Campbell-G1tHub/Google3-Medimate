@@ -1,9 +1,8 @@
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import type { ReactNode } from "react"
-import { AppShell } from "@/components/layout/app-shell"
 import { auth } from "@/lib/auth"
-import { isAdmin } from "@/lib/auth-guards"
+
 
 /**
  * Layout for every page that requires a session. `proxy.ts` already redirects these routes,
@@ -17,14 +16,9 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 	}
 
 	return (
-		<AppShell
-			user={{
-				name: session.user.name,
-				email: session.user.email,
-				isAdmin: isAdmin(session.user),
-			}}
-		>
+		<>
 			{children}
-		</AppShell>
+		</>
+
 	)
 }

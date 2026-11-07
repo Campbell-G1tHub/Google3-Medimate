@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import { auth } from "@/lib/auth"
+import { isAdmin } from "@/lib/roles"
 
 export type SessionUser = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>["user"]
-
-export function isAdmin(user: Pick<SessionUser, "role"> | null | undefined) {
-	return user?.role === "ADMIN"
-}
 
 type GuardResult = { user: SessionUser; response?: never } | { user?: never; response: NextResponse }
 

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation"
 import { AnnouncementForm } from "@/components/admin/announcement-form"
 import { NotificationBell } from "@/components/notifications/notification-bell"
 import { auth } from "@/lib/auth"
-import { isAdmin } from "@/lib/auth-guards"
+import { isAdmin } from "@/lib/roles"
 
 export const metadata: Metadata = {
 	title: "Send announcements | MediMate",

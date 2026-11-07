@@ -4,6 +4,9 @@ import type { ReactNode, SVGProps } from "react"
 import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useSession } from "@/lib/auth-client"
+import { AppShell } from "@/components/layout/app-shell"
+import { isAdmin } from "@/lib/roles"
+
 
 type EventCard = {
 	id: string
@@ -337,178 +340,173 @@ export default function DashboardPage() {
 		)
 
 	return (
-		<main className="min-h-screen bg-white pb-16 md:pb-0">
-			<div className="flex">
-				<section className="min-w-0 flex-1 px-4 py-4 md:px-8 md:py-6">
-					<header className="flex items-center justify-between border-b border-base-300 pb-3">
-						<h1 className="text-2xl font-bold text-primary md:text-3xl">Dashboard</h1>
-						<button
-							aria-label="Unread notifications"
-							className="relative text-primary"
-							type="button"
-						>
-							<BellIcon />
-							<span className="absolute -right-1 -top-2 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[9px] font-bold text-white">
-								3
-							</span>
-						</button>
-					</header>
-					<section className="mt-4">
-						<h2 className="text-base font-bold text-primary">My Events</h2>
-						<EventRow empty="You have not registered for an opportunity yet.">
-							{registered.map((event) => (
-								<EventCardView
-									event={event}
-									key={event.id}
-									onAction={() => openConfirmation(event, "cancel")}
-									onDetails={() => openDetails(event)}
-								/>
-							))}
-						</EventRow>
+		<AppShell
+			user={{
+				name: session.user.name,
+				email: session.user.email,
+				isAdmin: isAdmin(session.user),
+			}} title={"Dashboard"}>
+			<main className="min-h-screen bg-white pb-16 md:pb-0">
+				<div className="flex">
+					<section className="min-w-0 flex-1 px-4 py-4 md:px-8 md:py-6">
+						<section className="mt-4">
+							<h2 className="text-2xl font-bold text-primary">My Events</h2>
+							<EventRow empty="You have not registered for an opportunity yet.">
+								{registered.map((event) => (
+									<EventCardView
+										event={event}
+										key={event.id}
+										onAction={() => openConfirmation(event, "cancel")}
+										onDetails={() => openDetails(event)}
+									/>
+								))}
+							</EventRow>
+						</section>
+						<section className="mt-4">
+							<h2 className="text-base font-bold text-primary">Matching your interests</h2>
+							<EventRow empty="No matching opportunities are available right now.">
+								{matching.map((event) => (
+									<EventCardView
+										event={event}
+										key={event.id}
+										onAction={() => openConfirmation(event, "sign-up")}
+										onDetails={() => openDetails(event)}
+									/>
+								))}
+							</EventRow>
+						</section>
+						<section className="mt-4">
+							<h2 className="text-base font-bold text-primary">Also available</h2>
+							<EventRow empty="No other opportunities are available right now.">
+								{alsoAvailable.map((event) => (
+									<EventCardView
+										event={event}
+										key={event.id}
+										onAction={() => openConfirmation(event, "sign-up")}
+										onDetails={() => openDetails(event)}
+									/>
+								))}
+							</EventRow>
+						</section>
+						{error && <p className="mt-4 text-sm text-error">{error}</p>}
 					</section>
-					<section className="mt-4">
-						<h2 className="text-base font-bold text-primary">Matching your interests</h2>
-						<EventRow empty="No matching opportunities are available right now.">
-							{matching.map((event) => (
-								<EventCardView
-									event={event}
-									key={event.id}
-									onAction={() => openConfirmation(event, "sign-up")}
-									onDetails={() => openDetails(event)}
-								/>
-							))}
-						</EventRow>
-					</section>
-					<section className="mt-4">
-						<h2 className="text-base font-bold text-primary">Also available</h2>
-						<EventRow empty="No other opportunities are available right now.">
-							{alsoAvailable.map((event) => (
-								<EventCardView
-									event={event}
-									key={event.id}
-									onAction={() => openConfirmation(event, "sign-up")}
-									onDetails={() => openDetails(event)}
-								/>
-							))}
-						</EventRow>
-					</section>
-					{error && <p className="mt-4 text-sm text-error">{error}</p>}
-				</section>
-			</div>
-			{selected && dialog === "details" && (
-				<Modal
-					onClose={closeDialog}
-					variant={selected.registrationStatus ? "registered-detail" : "opportunity-detail"}
-				>
-					<p className="text-sm font-bold text-primary">{categoryFor(selected)}</p>
-					<h2 className="mt-1 text-base font-bold text-black">{selected.title}</h2>
-					<p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-primary">
-						<MapPinIcon className="h-4 w-4 shrink-0" />
-						{selected.location ?? "Location to be confirmed"}
-					</p>
-					<p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-primary">
-						<CalendarIcon className="h-4 w-4 shrink-0" />
-						{formatDate(selected.startsAt)}
-					</p>
-
-					{/* Todo wire to actual data */}
-					<p className="mt-2 text-xs font-bold text-accent">3 spots left</p>
-					<hr className="my-2 border-primary" />
-					<h3 className="text-xs font-bold text-black">About this event</h3>
-					<p className="mt-0.5 text-[11px] leading-3 text-primary">{selected.description}</p>
-					<h3 className="mt-1 text-xs font-bold text-black">Requirements</h3>
-					<p className="text-[11px] text-primary">
-						{selected.title.toLowerCase().includes("delivery")
-							? "Car · Driver licence"
-							: "No specific requirements"}
-					</p>
-					{selected.registrationStatus && (
-						<div className="mt-2 rounded-full bg-primary py-1 text-center text-xs font-bold text-white">
-							Confirmed
-						</div>
-					)}
-				</Modal>
-			)}
-			{selected && (dialog === "confirm-sign-up" || dialog === "confirm-cancel") && (
-				<Modal onClose={closeDialog} variant="confirmation">
-					<div className="text-center">
-						{dialog === "confirm-cancel" ? (
-							<WarningIcon className="mx-auto h-9 w-9" />
-						) : (
-							<VolunteerCheckIcon className="mx-auto h-9 w-9" />
-						)}
-						<h2 className="mt-3 text-lg font-bold text-black">
-							{dialog === "confirm-cancel" ? "Cancel this event?" : "Sign up for this opportunity?"}
-						</h2>
-						<p className="mx-auto mt-3 max-w-sm text-sm text-black">
-							{dialog === "confirm-cancel" ? (
-								<>
-									You&apos;re about to cancel your sign-up for <strong>{selected.title}</strong> on{" "}
-									{formatDate(selected.startsAt)}. This will free up your spot for another
-									volunteer.
-								</>
-							) : (
-								<>
-									You&apos;re about to sign up for <strong>{selected.title}</strong> on{" "}
-									{formatDate(selected.startsAt)} in {selected.location ?? "the local area"}.
-								</>
-							)}
+				</div>
+				{selected && dialog === "details" && (
+					<Modal
+						onClose={closeDialog}
+						variant={selected.registrationStatus ? "registered-detail" : "opportunity-detail"}
+					>
+						<p className="text-sm font-bold text-primary">{categoryFor(selected)}</p>
+						<h2 className="mt-1 text-base font-bold text-black">{selected.title}</h2>
+						<p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-primary">
+							<MapPinIcon className="h-4 w-4 shrink-0" />
+							{selected.location ?? "Location to be confirmed"}
 						</p>
-						<div className="mt-5 flex flex-wrap justify-center gap-3">
+						<p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-primary">
+							<CalendarIcon className="h-4 w-4 shrink-0" />
+							{formatDate(selected.startsAt)}
+						</p>
+
+						{/* Todo wire to actual data */}
+						<p className="mt-2 text-xs font-bold text-accent">3 spots left</p>
+						<hr className="my-2 border-primary" />
+						<h3 className="text-xs font-bold text-black">About this event</h3>
+						<p className="mt-0.5 text-[11px] leading-3 text-primary">{selected.description}</p>
+						<h3 className="mt-1 text-xs font-bold text-black">Requirements</h3>
+						<p className="text-[11px] text-primary">
+							{selected.title.toLowerCase().includes("delivery")
+								? "Car · Driver licence"
+								: "No specific requirements"}
+						</p>
+						{selected.registrationStatus && (
+							<div className="mt-2 rounded-full bg-primary py-1 text-center text-xs font-bold text-white">
+								Confirmed
+							</div>
+						)}
+					</Modal>
+				)}
+				{selected && (dialog === "confirm-sign-up" || dialog === "confirm-cancel") && (
+					<Modal onClose={closeDialog} variant="confirmation">
+						<div className="text-center">
+							{dialog === "confirm-cancel" ? (
+								<WarningIcon className="mx-auto h-9 w-9" />
+							) : (
+								<VolunteerCheckIcon className="mx-auto h-9 w-9" />
+							)}
+							<h2 className="mt-3 text-lg font-bold text-black">
+								{dialog === "confirm-cancel" ? "Cancel this event?" : "Sign up for this opportunity?"}
+							</h2>
+							<p className="mx-auto mt-3 max-w-sm text-sm text-black">
+								{dialog === "confirm-cancel" ? (
+									<>
+										You&apos;re about to cancel your sign-up for <strong>{selected.title}</strong> on{" "}
+										{formatDate(selected.startsAt)}. This will free up your spot for another
+										volunteer.
+									</>
+								) : (
+									<>
+										You&apos;re about to sign up for <strong>{selected.title}</strong> on{" "}
+										{formatDate(selected.startsAt)} in {selected.location ?? "the local area"}.
+									</>
+								)}
+							</p>
+							<div className="mt-5 flex flex-wrap justify-center gap-3">
+								<Button
+									className="h-9 min-h-0 !border-accent !bg-white px-5 text-sm font-bold !text-accent hover:!border-accent hover:!bg-white hover:!text-accent"
+									onClick={closeDialog}
+									rounded
+									variant="outline"
+								>
+									{dialog === "confirm-cancel" ? "Keep my spot" : "Cancel"}
+								</Button>
+								<Button
+									className="h-9 min-h-0 border-none bg-accent px-5 text-sm font-bold text-white hover:bg-accent/90"
+									loading={pending}
+									onClick={() => void completeAction()}
+									rounded
+									variant="accent"
+								>
+									{dialog === "confirm-cancel" ? "Cancel event" : "Confirm Sign Up"}
+								</Button>
+							</div>
+							{error && <p className="mt-3 text-sm text-error">{error}</p>}
+						</div>
+					</Modal>
+				)}
+				{selected && dialog === "success" && (
+					<Modal onClose={closeDialog} variant="success">
+						<div className="text-center">
+							<CheckIcon className="mx-auto h-10 w-10" />
+							<h2 className="mt-3 text-lg font-bold text-black">
+								{action === "cancel" ? "Event Cancelled" : "You've signed up!"}
+							</h2>
+							<p className="mx-auto mt-3 max-w-sm text-sm text-black">
+								{action === "cancel" ? (
+									<>
+										You cancelled your sign-up for <strong>{selected.title}</strong> on{" "}
+										{formatDate(selected.startsAt)}. Your spot has been freed up for another
+										volunteer.
+									</>
+								) : (
+									<>
+										You secured your spot for <strong>{selected.title}</strong> on{" "}
+										{formatDate(selected.startsAt)}.
+									</>
+								)}
+							</p>
 							<Button
-								className="h-9 min-h-0 !border-accent !bg-white px-5 text-sm font-bold !text-accent hover:!border-accent hover:!bg-white hover:!text-accent"
+								className="mt-5 h-9 min-h-0 border-none bg-accent px-6 text-sm font-bold text-white hover:bg-accent/90"
 								onClick={closeDialog}
-								rounded
-								variant="outline"
-							>
-								{dialog === "confirm-cancel" ? "Keep my spot" : "Cancel"}
-							</Button>
-							<Button
-								className="h-9 min-h-0 border-none bg-accent px-5 text-sm font-bold text-white hover:bg-accent/90"
-								loading={pending}
-								onClick={() => void completeAction()}
 								rounded
 								variant="accent"
 							>
-								{dialog === "confirm-cancel" ? "Cancel event" : "Confirm Sign Up"}
+								Done
 							</Button>
 						</div>
-						{error && <p className="mt-3 text-sm text-error">{error}</p>}
-					</div>
-				</Modal>
-			)}
-			{selected && dialog === "success" && (
-				<Modal onClose={closeDialog} variant="success">
-					<div className="text-center">
-						<CheckIcon className="mx-auto h-10 w-10" />
-						<h2 className="mt-3 text-lg font-bold text-black">
-							{action === "cancel" ? "Event Cancelled" : "You've signed up!"}
-						</h2>
-						<p className="mx-auto mt-3 max-w-sm text-sm text-black">
-							{action === "cancel" ? (
-								<>
-									You cancelled your sign-up for <strong>{selected.title}</strong> on{" "}
-									{formatDate(selected.startsAt)}. Your spot has been freed up for another
-									volunteer.
-								</>
-							) : (
-								<>
-									You secured your spot for <strong>{selected.title}</strong> on{" "}
-									{formatDate(selected.startsAt)}.
-								</>
-							)}
-						</p>
-						<Button
-							className="mt-5 h-9 min-h-0 border-none bg-accent px-6 text-sm font-bold text-white hover:bg-accent/90"
-							onClick={closeDialog}
-							rounded
-							variant="accent"
-						>
-							Done
-						</Button>
-					</div>
-				</Modal>
-			)}
-		</main>
+					</Modal>
+				)}
+			</main>
+		</AppShell >
+
 	)
 }
