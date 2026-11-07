@@ -1,6 +1,7 @@
 export { Button, type ButtonProps } from "./button"
 export { Card, type CardProps } from "./card"
 export { Checkbox, type CheckboxProps } from "./checkbox"
+export { DropdownSelect, type DropdownOption, type DropdownSelectProps } from "./dropdown-select"
 export { Input, type InputProps } from "./input"
 export {
 	RadioGroup,

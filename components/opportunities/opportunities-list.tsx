@@ -9,6 +9,7 @@ import {
 	OpportunityCardBase,
 } from "@/components/opportunities/opportunity-card-base"
 import { Button } from "@/components/ui/button"
+import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select"
 
 export interface Opportunity {
 	id: string
@@ -23,7 +24,39 @@ export interface Opportunity {
 
 type Dialog = "details" | "confirm" | "success" | "my-details" | undefined
 type Action = "sign-up" | "reserve"
-type FilterMenu = "category" | "location" | "date" | "sort" | undefined
+
+const CATEGORY_OPTIONS: readonly DropdownOption[] = [
+	{ value: "Warehouse", label: "Warehouse" },
+	{ value: "Digital communications", label: "Digital communications" },
+	{ value: "Logistics", label: "Logistics" },
+	{ value: "Fundraising", label: "Fundraising" },
+	{ value: "Grant writing and Scientific Research", label: "Grant writing and Scientific Research" },
+	{ value: "Hospital liaison or representative", label: "Hospital liaison or representative" },
+	{ value: "Board member", label: "Board member" },
+	{ value: "Community Engagement", label: "Community Engagement" },
+	{ value: "Computer Science", label: "Computer Science" },
+	{ value: "Industrial design", label: "Industrial design" },
+	{ value: "Sustainability Research team", label: "Sustainability Research team" },
+	{
+		value: "Corporate Sponsorship and Partnerships team",
+		label: "Corporate Sponsorship and Partnerships team",
+	},
+]
+
+const DATE_OPTIONS: readonly DropdownOption[] = [
+	{ value: "Any time", label: "Any time" },
+	{ value: "This week", label: "This week" },
+	{ value: "This weekend", label: "This weekend" },
+	{ value: "Next week", label: "Next week" },
+	{ value: "This month", label: "This month" },
+]
+
+const SORT_OPTIONS: readonly DropdownOption[] = [
+	{ value: "Active", label: "Active" },
+	{ value: "Inactive", label: "Inactive" },
+	{ value: "Newest first", label: "Newest first" },
+	{ value: "Oldest first", label: "Oldest first" },
+]
 
 function Icon({ children, ...props }: SVGProps<SVGSVGElement> & { children: ReactNode }) {
 	return (
@@ -65,63 +98,6 @@ function categoryFor(opportunity: Opportunity) {
 	if (title.includes("delivery")) return "Deliveries"
 	if (title.includes("warehouse")) return "Warehouses"
 	return "Community"
-}
-
-function FilterButton({
-	label,
-	open,
-	onClick,
-}: {
-	label: string
-	open: boolean
-	onClick: () => void
-}) {
-	return (
-		<button
-			aria-expanded={open}
-			className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-white"
-			onClick={onClick}
-			type="button"
-		>
-			{label} <span className="text-[9px]">{open ? "▲" : "▼"}</span>
-		</button>
-	)
-}
-function FilterDropdown({
-	label,
-	options,
-	selected,
-	onSelect,
-}: {
-	label: string
-	options: string[]
-	selected: string
-	onSelect: (value: string) => void
-}) {
-	return (
-		<div className="absolute left-0 top-9 z-20 w-44 overflow-hidden rounded-2xl border-2 border-primary bg-white text-xs shadow-md">
-			<div className="flex items-center justify-between bg-primary px-3 py-2 font-bold text-white">
-				<span>{label}</span>
-				<span>▲</span>
-			</div>
-			{options.map((option) => (
-				<button
-					className={`flex w-full items-center justify-between border-b border-primary/70 px-3 py-2 text-left last:border-b-0 ${selected === option ? "bg-base-200 font-bold" : ""}`}
-					key={option}
-					onClick={() => onSelect(option)}
-					type="button"
-				>
-					{option}
-					<span
-						aria-hidden="true"
-						className={`grid h-4 w-4 shrink-0 place-items-center border border-primary text-[10px] leading-none ${selected === option ? "bg-primary text-white" : "bg-white text-transparent"}`}
-					>
-						✓
-					</span>
-				</button>
-			))}
-		</div>
-	)
 }
 
 function DialogFrame({
@@ -198,6 +174,8 @@ function OpportunityCard({
 	)
 }
 
+const FILTER_BUTTON_CLASS = "px-3 py-1.5 text-xs font-bold text-white"
+
 export function OpportunitiesList({
 	initialOpportunities,
 }: {
@@ -206,11 +184,10 @@ export function OpportunitiesList({
 	const [opportunities, setOpportunities] = useState(initialOpportunities)
 	const [activeView, setActiveView] = useState<"available" | "attended">("available")
 	const [query, setQuery] = useState("")
-	const [category, setCategory] = useState("Category")
-	const [location, setLocation] = useState("Location")
-	const [date, setDate] = useState("Date")
+	const [categories, setCategories] = useState<string[]>([])
+	const [locationsFilter, setLocationsFilter] = useState<string[]>([])
+	const [dates, setDates] = useState<string[]>([])
 	const [sort, setSort] = useState("Sort")
-	const [openMenu, setOpenMenu] = useState<FilterMenu>()
 	const [selected, setSelected] = useState<Opportunity>()
 	const [dialog, setDialog] = useState<Dialog>()
 	const [action, setAction] = useState<Action>("sign-up")
@@ -238,36 +215,38 @@ export function OpportunitiesList({
 						.filter(Boolean)
 						.some((value) => value?.toLowerCase().includes(needle))
 				const matchesCategory =
-					category === "Category" ||
-					categoryFor(opportunity).toLowerCase().startsWith(category.toLowerCase())
+					categories.length === 0 ||
+					categories.some((item) =>
+						categoryFor(opportunity).toLowerCase().startsWith(item.toLowerCase()),
+					)
+				const matchesLocation =
+					locationsFilter.length === 0 ||
+					locationsFilter.includes(opportunity.location ?? "")
 				const eventDate = opportunity.startsAt ? new Date(opportunity.startsAt) : undefined
 				const today = new Date()
 				const dayDifference = eventDate
 					? Math.floor((eventDate.getTime() - today.getTime()) / 86_400_000)
 					: Number.NaN
 				const matchesDate =
-					date === "Date" ||
-					date === "Any time" ||
-					(date === "This week" && dayDifference >= 0 && dayDifference < 7) ||
-					(date === "This weekend" && dayDifference >= 0 && dayDifference < 3) ||
-					(date === "Next week" && dayDifference >= 7 && dayDifference < 14) ||
-					(date === "This month" &&
-						eventDate?.getMonth() === today.getMonth() &&
-						eventDate.getFullYear() === today.getFullYear())
-				return (
-					matchesView &&
-					matchesSearch &&
-					matchesCategory &&
-					matchesDate &&
-					(location === "Location" || opportunity.location === location)
-				)
+					dates.length === 0 ||
+					dates.some(
+						(item) =>
+							item === "Any time" ||
+							(item === "This week" && dayDifference >= 0 && dayDifference < 7) ||
+							(item === "This weekend" && dayDifference >= 0 && dayDifference < 3) ||
+							(item === "Next week" && dayDifference >= 7 && dayDifference < 14) ||
+							(item === "This month" &&
+								eventDate?.getMonth() === today.getMonth() &&
+								eventDate.getFullYear() === today.getFullYear()),
+					)
+				return matchesView && matchesSearch && matchesCategory && matchesLocation && matchesDate
 			})
 			.sort((a, b) =>
 				sort === "Newest first"
 					? (b.startsAt ?? "").localeCompare(a.startsAt ?? "")
 					: (a.startsAt ?? "").localeCompare(b.startsAt ?? ""),
 			)
-	}, [activeView, opportunities, query, category, location, date, sort])
+	}, [activeView, opportunities, query, categories, locationsFilter, dates, sort])
 	function closeDialog() {
 		setSelected(undefined)
 		setDialog(undefined)
@@ -307,14 +286,6 @@ export function OpportunitiesList({
 			setIsSubmitting(false)
 		}
 	}
-	function choose(
-		setter: (value: string) => void,
-		value: string,
-		current: string,
-		defaultValue: string,
-	) {
-		setter(value === current ? defaultValue : value)
-	}
 	return (
 		<main className="bg-white pb-16 md:pb-0">
 			<div className="flex">
@@ -350,83 +321,52 @@ export function OpportunitiesList({
 							value={query}
 						/>
 						<div className="mt-2 flex flex-wrap gap-2">
-							<div className="relative">
-								<FilterButton
-									label="Category"
-									open={openMenu === "category"}
-									onClick={() => setOpenMenu(openMenu === "category" ? undefined : "category")}
-								/>
-								{openMenu === "category" && (
-									<FilterDropdown
-										label="Category"
-										options={[
-											"Warehouse",
-											"Digital communications",
-											"Logistics",
-											"Fundraising",
-											"Grant writing and Scientific Research",
-											"Hospital liaison or representative",
-											"Board member",
-											"Community Engagement",
-											"Computer Science",
-											"Industrial design",
-											"Sustainability Research team",
-											"Corporate Sponsorship and Partnerships team",
-										]}
-										selected={category}
-										onSelect={(value) => choose(setCategory, value, category, "Category")}
-									/>
-								)}
-							</div>
-							<div className="relative">
-								<FilterButton
-									label="Location"
-									open={openMenu === "location"}
-									onClick={() => setOpenMenu(openMenu === "location" ? undefined : "location")}
-								/>
-								{openMenu === "location" && (
-									<FilterDropdown
-										label="Location"
-										options={locations}
-										selected={location}
-										onSelect={(value) => choose(setLocation, value, location, "Location")}
-									/>
-								)}
-							</div>
-							<div className="relative">
-								<FilterButton
-									label="Date"
-									open={openMenu === "date"}
-									onClick={() => setOpenMenu(openMenu === "date" ? undefined : "date")}
-								/>
-								{openMenu === "date" && (
-									<FilterDropdown
-										label="Date"
-										options={["Any time", "This week", "This weekend", "Next week", "This month"]}
-										selected={date}
-										onSelect={(value) => choose(setDate, value, date, "Date")}
-									/>
-								)}
-							</div>
+							<DropdownSelect
+								buttonClassName={FILTER_BUTTON_CLASS}
+								className="sm:max-w-none"
+								menuClassName="w-44 text-xs"
+								wrapperClassName="sm:max-w-none"
+								options={CATEGORY_OPTIONS}
+								value={categories}
+								placeholder="Category"
+								onChange={(next) => setCategories(Array.isArray(next) ? next : [next])}
+							/>
+							<DropdownSelect
+								buttonClassName={FILTER_BUTTON_CLASS}
+								className="sm:max-w-none"
+								menuClassName="w-44 text-xs"
+								wrapperClassName="sm:max-w-none"
+								options={locations.map((item) => ({ value: item, label: item }))}
+								value={locationsFilter}
+								placeholder="Location"
+								onChange={(next) => setLocationsFilter(Array.isArray(next) ? next : [next])}
+							/>
+							<DropdownSelect
+								buttonClassName={FILTER_BUTTON_CLASS}
+								className="sm:max-w-none"
+								menuClassName="w-44 text-xs"
+								wrapperClassName="sm:max-w-none"
+								options={DATE_OPTIONS}
+								value={dates}
+								placeholder="Date"
+								onChange={(next) => setDates(Array.isArray(next) ? next : [next])}
+							/>
 						</div>
 					</div>
-					<div className="mt-4 flex items-center gap-2 text-sm font-bold text-primary">
+					<div className="mt-4 flex  items-center gap-2 text-sm font-bold text-primary">
 						<span>{displayed.length} Results</span>
-						<div className="relative">
-							<FilterButton
-								label="Sort"
-								open={openMenu === "sort"}
-								onClick={() => setOpenMenu(openMenu === "sort" ? undefined : "sort")}
-							/>
-							{openMenu === "sort" && (
-								<FilterDropdown
-									label="Sort"
-									options={["Active", "Inactive", "Newest first", "Oldest first"]}
-									selected={sort}
-									onSelect={(value) => choose(setSort, value, sort, "Sort")}
-								/>
-							)}
-						</div>
+						<DropdownSelect
+							buttonClassName={FILTER_BUTTON_CLASS}
+							className="sm:max-w-none"
+							menuClassName="w-44 text-xs"
+							wrapperClassName="sm:max-w-none"
+							options={SORT_OPTIONS}
+							value={sort}
+							placeholder="Sort"
+							onChange={(next) =>
+								setSort(next === sort ? "Sort" : next === "" ? "Sort" : String(next))
+							}
+						/>
 					</div>
 					{displayed.length === 0 ? (
 						<p className="mt-4 text-sm text-primary">No opportunities match your filters.</p>
@@ -450,74 +390,22 @@ export function OpportunitiesList({
 					onClose={closeDialog}
 					variant={selected.signedUp ? "attended-details" : "details"}
 				>
-					<p
-						className={
-							selected.signedUp
-								? "text-sm font-bold text-primary"
-								: "text-sm font-bold text-primary"
-						}
-					>
-						{categoryFor(selected)}
-					</p>
-					<h2
-						className={
-							selected.signedUp
-								? "mt-1 text-base font-bold text-black"
-								: "mt-1 text-base font-bold text-black"
-						}
-					>
-						{selected.title}
-					</h2>
-					<p
-						className={
-							selected.signedUp
-								? "mt-2 flex items-center gap-1.5 text-xs font-medium text-primary"
-								: "mt-2 flex items-center gap-1.5 text-xs font-medium text-primary"
-						}
-					>
+					<p className="text-sm font-bold text-primary">{categoryFor(selected)}</p>
+					<h2 className="mt-1 text-base font-bold text-black">{selected.title}</h2>
+					<p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-primary">
 						<MapPinIcon aria-hidden="true" className="h-4 w-4" />
 						{selected.location ?? "Location to be confirmed"}
 					</p>
-					<p
-						className={
-							selected.signedUp
-								? "mt-1 flex items-center gap-1.5 text-xs font-medium text-primary"
-								: "mt-1 flex items-center gap-1.5 text-xs font-medium text-primary"
-						}
-					>
+					<p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-primary">
 						<CalendarIcon aria-hidden="true" className="h-4 w-4" />
 						{formatOpportunityDateTime(selected.startsAt)}
 					</p>
 					{!selected.signedUp && <p className="mt-2 text-xs font-bold text-accent">3 spots left</p>}
 					<hr className="my-2 border-primary" />
-					<h3
-						className={
-							selected.signedUp ? "text-xs font-bold text-black" : "text-xs font-bold text-black"
-						}
-					>
-						About this event
-					</h3>
-					<p
-						className={
-							selected.signedUp
-								? "mt-0.5 text-[11px] leading-3 text-primary"
-								: "mt-0.5 text-[11px] leading-3 text-primary"
-						}
-					>
-						{selected.description}
-					</p>
-					<h3
-						className={
-							selected.signedUp
-								? "mt-1 text-xs font-bold text-black"
-								: "mt-1 text-xs font-bold text-black"
-						}
-					>
-						Requirements
-					</h3>
-					<p
-						className={selected.signedUp ? "text-[11px] text-primary" : "text-[11px] text-primary"}
-					>
+					<h3 className="text-xs font-bold text-black">About this event</h3>
+					<p className="mt-0.5 text-[11px] leading-3 text-primary">{selected.description}</p>
+					<h3 className="mt-1 text-xs font-bold text-black">Requirements</h3>
+					<p className="text-[11px] text-primary">
 						{selected.title.toLowerCase().includes("delivery")
 							? "Car · Driver licence"
 							: "No specific requirements"}

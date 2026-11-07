@@ -1,4 +1,3 @@
-"use client";
 import type { ReactNode } from "react"
 import { useEffect, useId, useRef, useState } from "react"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -125,7 +124,7 @@ export function DropdownSelect({
 
 	return (
 		<fieldset
-			className={["fieldset sm:max-w-xs", wrapperClassName].filter(Boolean).join(" ")}
+			className={["fieldset lg:w-full sm:max-w-xs", wrapperClassName].filter(Boolean).join(" ")}
 		>
 			{label && (
 				<legend
@@ -149,7 +148,7 @@ export function DropdownSelect({
 					aria-describedby={error ? errorId : undefined}
 					disabled={disabled}
 					className={[
-						"btn btn-primary w-full justify-between px-2 text-sm font-semibold shadow-none rounded-full",
+						"btn btn-primary w-full justify-between px-4 text-sm font-semibold shadow-none rounded-full",
 						buttonClassName,
 					]
 						.filter(Boolean)

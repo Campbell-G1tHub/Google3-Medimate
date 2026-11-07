@@ -1,9 +1,25 @@
 "use client"
 
-import Image from "next/image"
-import { useEffect, useId, useRef, useState } from "react"
-import { Checkbox } from "@/components/ui/checkbox"
-import { ALL_VOLUNTEERS, describeAudience, SEND_TO_OPTIONS } from "@/lib/validation/announcement"
+import { useSyncExternalStore } from "react"
+import { DropdownSelect } from "@/components/ui/dropdown-select"
+import { ALL_VOLUNTEERS, SEND_TO_OPTIONS } from "@/lib/validation/announcement"
+
+/** Match Tailwind's default `sm` breakpoint (640px). */
+const MOBILE_QUERY = "(max-width: 639px)"
+
+function subscribeToMobile(callback: () => void) {
+	const mediaQuery = window.matchMedia(MOBILE_QUERY)
+	mediaQuery.addEventListener("change", callback)
+	return () => mediaQuery.removeEventListener("change", callback)
+}
+
+function getMobileSnapshot() {
+	return window.matchMedia(MOBILE_QUERY).matches
+}
+
+function useIsMobile() {
+	return useSyncExternalStore(subscribeToMobile, getMobileSnapshot, () => false)
+}
 
 interface SendToSelectProps {
 	value: string[]
@@ -13,26 +29,7 @@ interface SendToSelectProps {
 }
 
 export function SendToSelect({ value, onChange, onBlur, error }: SendToSelectProps) {
-	const panelId = useId()
-	const errorId = useId()
-	const [isOpen, setIsOpen] = useState(false)
-	const containerRef = useRef<HTMLDivElement>(null)
-
-	useEffect(() => {
-		if (!isOpen) {
-			return
-		}
-
-		function closeOnOutsidePress(event: PointerEvent) {
-			if (!containerRef.current?.contains(event.target as Node)) {
-				setIsOpen(false)
-				onBlur?.()
-			}
-		}
-
-		document.addEventListener("pointerdown", closeOnOutsidePress)
-		return () => document.removeEventListener("pointerdown", closeOnOutsidePress)
-	}, [isOpen, onBlur])
+	const isMobile = useIsMobile()
 
 	// "All volunteers" and specific groups are mutually exclusive.
 	function toggle(option: string, checked: boolean) {
@@ -45,55 +42,22 @@ export function SendToSelect({ value, onChange, onBlur, error }: SendToSelectPro
 		onChange(checked ? [...groups, option] : groups)
 	}
 
-	const summary = value.length > 0 ? describeAudience(value) : "Select category or all volunteers"
-
 	return (
-		<fieldset className="fieldset w-full sm:max-w-xs">
-			<legend className="fieldset-legend text-base font-bold text-primary">Send to</legend>
-			<div
-				ref={containerRef}
-				className={
-					isOpen ? "overflow-hidden rounded-[1.25rem] border border-primary bg-base-100" : undefined
+		<DropdownSelect
+			label="Send to"
+			labelClassName="text-base font-bold text-primary"
+			options={SEND_TO_OPTIONS}
+			value={value}
+			onChange={(next) => {
+				if (Array.isArray(next)) {
+					onChange(next)
 				}
-			>
-				<button
-					type="button"
-					onClick={() => setIsOpen((open) => !open)}
-					aria-expanded={isOpen}
-					aria-controls={panelId}
-					aria-describedby={error ? errorId : undefined}
-					className={`btn btn-primary w-full justify-between px-4 text-sm font-semibold shadow-none ${isOpen ? "rounded-none" : "rounded-full"}`}
-				>
-					<span className="truncate first-letter:uppercase">{summary}</span>
-					<Image
-						src={isOpen ? "/icons/chevron_up.svg" : "/icons/chevron_down.svg"}
-						alt=""
-						width={isOpen ? 24 : 12}
-						height={isOpen ? 24 : 7}
-					/>
-				</button>
-
-				{isOpen && (
-					<div id={panelId} className="flex flex-col gap-4 px-4 py-4">
-						{SEND_TO_OPTIONS.map((option) => (
-							<Checkbox
-								key={option.value}
-								name="sendTo"
-								value={option.value}
-								label={option.label}
-								checked={value.includes(option.value)}
-								onChange={(event) => toggle(option.value, event.target.checked)}
-								onBlur={onBlur}
-							/>
-						))}
-					</div>
-				)}
-			</div>
-			{error && (
-				<p id={errorId} className="label text-error">
-					{error}
-				</p>
-			)}
-		</fieldset>
+			}}
+			onToggleOption={(option, checked) => toggle(option.value, checked)}
+			onBlur={onBlur}
+			error={error}
+			flip={isMobile}
+			placeholder="Select category or all volunteers"
+		/>
 	)
 }
