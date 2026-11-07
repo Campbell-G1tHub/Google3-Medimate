@@ -1,10 +1,8 @@
 "use client"
 
 import type { ReactNode, SVGProps } from "react"
-import Link from "next/link"
 import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { signOut, useSession } from "@/lib/auth-client"
 
 export interface Opportunity {
 	id: string
@@ -79,14 +77,6 @@ function CheckIcon(props: SVGProps<SVGSVGElement>) {
 		</Icon>
 	)
 }
-function BellIcon(props: SVGProps<SVGSVGElement>) {
-	return (
-		<Icon height="22" width="22" {...props}>
-			<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
-		</Icon>
-	)
-}
-
 function formatDateTime(value: string | null) {
 	if (!value) return "Time to be confirmed"
 	return new Intl.DateTimeFormat("en-AU", {
@@ -101,38 +91,6 @@ function categoryFor(opportunity: Opportunity) {
 	if (title.includes("delivery")) return "Deliveries"
 	if (title.includes("warehouse")) return "Warehouses"
 	return "Community"
-}
-
-function Sidebar() {
-	const { data: session } = useSession()
-	const item = "flex items-center gap-2 rounded-full px-3 py-2 text-sm font-bold text-primary"
-	return (
-		<aside className="hidden min-h-[calc(100vh-3.5rem)] w-52 shrink-0 border-r border-base-300 px-5 py-6 md:block">
-			<div className="grid h-16 w-16 place-items-center rounded-full border-2 border-primary text-2xl">
-				◯
-			</div>
-			<p className="mt-3 truncate text-xs font-bold text-primary">
-				{session?.user.name ?? "Volunteer"}
-			</p>
-			<p className="truncate text-[10px] text-primary">{session?.user.email}</p>
-			<nav className="mt-8 space-y-2">
-				<Link className={item} href="/home">
-					⌂ Dashboard
-				</Link>
-				<p className={`${item} bg-primary text-white`}>⌕ Opportunities</p>
-				<p className={item}>▣ Inbox</p>
-				<p className={item}>♙ Profile</p>
-				<p className={item}>⚙ Settings</p>
-			</nav>
-			<button
-				className="mt-24 flex items-center gap-2 text-sm font-bold text-accent"
-				onClick={() => void signOut()}
-				type="button"
-			>
-				↪ Log out
-			</button>
-		</aside>
-	)
 }
 
 function FilterButton({
@@ -402,17 +360,7 @@ export function OpportunitiesList({
 	return (
 		<main className="min-h-screen bg-white pb-16 md:pb-0">
 			<div className="flex">
-				<Sidebar />
 				<section className="min-w-0 flex-1 px-4 py-4 md:px-8 md:py-6">
-					<header className="flex items-center justify-between border-b border-base-300 pb-3">
-						<h1 className="text-2xl font-bold text-primary md:text-3xl">Opportunities</h1>
-						<span className="relative text-primary">
-							<BellIcon />
-							<span className="absolute -right-2 -top-2 grid h-3 w-3 place-items-center rounded-full bg-accent text-[8px] text-white">
-								3
-							</span>
-						</span>
-					</header>
 					<div className="mt-2">
 						<div className="flex items-center gap-2 text-sm font-bold text-primary">
 							<span>Search</span>

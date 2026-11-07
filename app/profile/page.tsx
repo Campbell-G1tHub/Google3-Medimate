@@ -1,8 +1,10 @@
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
+import { AppShell } from "@/components/layout/app-shell"
 import { ProfilePageContent } from "@/components/profile/profile-page"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { isAdmin } from "@/lib/roles"
 
 export default async function ProfilePage() {
 	const session = await auth.api.getSession({ headers: await headers() })
@@ -28,23 +30,32 @@ export default async function ProfilePage() {
 	}, 0)
 
 	return (
-		<ProfilePageContent
-			initialProfile={{
+		<AppShell
+			user={{
 				name: session.user.name,
 				email: session.user.email,
-				firstName: information?.firstName ?? nameParts[0] ?? "",
-				lastName: information?.lastName ?? nameParts.slice(1).join(" "),
-				mobile: information?.mobile ?? "",
-				address: information?.address ?? "",
-				carType: information?.carType ?? "",
-				forkliftLicense: information?.forkliftLicense ?? false,
-				firstAid: information?.firstAid ?? false,
-				impact: {
-					commitments: completed.length,
-					hours: Number(totalHours.toFixed(1)),
-					ordersPacked: completed.reduce((total, attendee) => total + attendee.ordersPacked, 0),
-				},
+				isAdmin: isAdmin(session.user),
 			}}
-		/>
+			title="Profile"
+		>
+			<ProfilePageContent
+				initialProfile={{
+					name: session.user.name,
+					email: session.user.email,
+					firstName: information?.firstName ?? nameParts[0] ?? "",
+					lastName: information?.lastName ?? nameParts.slice(1).join(" "),
+					mobile: information?.mobile ?? "",
+					address: information?.address ?? "",
+					carType: information?.carType ?? "",
+					forkliftLicense: information?.forkliftLicense ?? false,
+					firstAid: information?.firstAid ?? false,
+					impact: {
+						commitments: completed.length,
+						hours: Number(totalHours.toFixed(1)),
+						ordersPacked: completed.reduce((total, attendee) => total + attendee.ordersPacked, 0),
+					},
+				}}
+			/>
+		</AppShell>
 	)
 }

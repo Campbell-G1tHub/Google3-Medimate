@@ -1,7 +1,6 @@
 "use client"
 
 import { type FormEvent, type ReactNode, type SVGProps, useState } from "react"
-import { VolunteerSidebar } from "@/components/navigation/volunteer-sidebar"
 
 type Profile = {
 	name: string
@@ -54,13 +53,6 @@ function Avatar() {
 			<circle cx="52" cy="34" r="17" />
 			<path d="M20 91c0-17 14-27 32-27s32 10 32 27" />
 		</svg>
-	)
-}
-function Bell() {
-	return (
-		<Icon>
-			<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
-		</Icon>
 	)
 }
 function Close() {
@@ -205,12 +197,7 @@ export function ProfilePageContent({ initialProfile }: { initialProfile: Profile
 
 	return (
 		<div className="flex min-h-[calc(100vh-3.5rem)] bg-white text-primary">
-			<VolunteerSidebar />
 			<main className="min-w-0 flex-1 px-6 py-3 sm:px-10">
-				<div className="flex items-center justify-between border-b-2 border-base-300 pb-2">
-					<h1 className="text-3xl">Profile</h1>
-					<Bell />
-				</div>
 				<section className="flex items-center gap-4 border-b-2 border-base-300 py-4">
 					<Avatar />
 					<div className="text-sm font-bold">

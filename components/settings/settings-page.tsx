@@ -2,7 +2,6 @@
 
 import { useState, type FormEvent, type ReactNode, type SVGProps } from "react"
 import { useRouter } from "next/navigation"
-import { VolunteerSidebar } from "@/components/navigation/volunteer-sidebar"
 import { changePassword, deleteUser, signOut } from "@/lib/auth-client"
 
 type Dialog = "password" | "delete" | "delete-confirm" | "deleted" | "logout" | null
@@ -43,13 +42,6 @@ function Icon({ children, ...props }: SVGProps<SVGSVGElement> & { children: Reac
 	)
 }
 
-function BellIcon() {
-	return (
-		<Icon>
-			<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
-		</Icon>
-	)
-}
 function CloseIcon() {
 	return (
 		<Icon>
@@ -207,12 +199,7 @@ export function SettingsPageContent({ initialSettings }: { initialSettings: Sett
 
 	return (
 		<div className="flex min-h-[calc(100vh-3.5rem)] bg-white">
-			<VolunteerSidebar />
 			<div className="min-w-0 flex-1 px-6 py-3 sm:px-10">
-				<div className="flex items-center justify-between border-b-2 border-base-300 pb-2">
-					<h1 className="text-3xl text-primary">Settings</h1>
-					<BellIcon />
-				</div>
 				<div className="max-w-[1080px] pt-3 text-primary">
 					<section className="space-y-3">
 						<h2 className="text-base">App notifications</h2>

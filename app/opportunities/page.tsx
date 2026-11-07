@@ -1,8 +1,10 @@
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
+import { AppShell } from "@/components/layout/app-shell"
 import { OpportunitiesList, type Opportunity } from "@/components/opportunities/opportunities-list"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { isAdmin } from "@/lib/roles"
 
 export default async function OpportunitiesPage() {
 	const session = await auth.api.getSession({ headers: await headers() })
@@ -38,5 +40,16 @@ export default async function OpportunitiesPage() {
 		signedUp: attendees.length > 0,
 	}))
 
-	return <OpportunitiesList initialOpportunities={opportunities} />
+	return (
+		<AppShell
+			user={{
+				name: session.user.name,
+				email: session.user.email,
+				isAdmin: isAdmin(session.user),
+			}}
+			title="Opportunities"
+		>
+			<OpportunitiesList initialOpportunities={opportunities} />
+		</AppShell>
+	)
 }

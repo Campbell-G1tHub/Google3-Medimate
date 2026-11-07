@@ -1,8 +1,10 @@
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
+import { AppShell } from "@/components/layout/app-shell"
 import { SettingsPageContent } from "@/components/settings/settings-page"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { isAdmin } from "@/lib/roles"
 
 function parsePreferences(value: string | undefined) {
 	if (!value) return []
@@ -21,13 +23,22 @@ export default async function SettingsPage() {
 		where: { volunteerId: session.user.id },
 	})
 	return (
-		<SettingsPageContent
-			initialSettings={{
-				appNotifications: settings?.appNotifications ?? true,
-				opportunityNotifications: settings?.opportunityNotifications ?? true,
-				newsletterNotifications: settings?.newsletterNotifications ?? true,
-				preferences: parsePreferences(settings?.preferences),
+		<AppShell
+			user={{
+				name: session.user.name,
+				email: session.user.email,
+				isAdmin: isAdmin(session.user),
 			}}
-		/>
+			title="Settings"
+		>
+			<SettingsPageContent
+				initialSettings={{
+					appNotifications: settings?.appNotifications ?? true,
+					opportunityNotifications: settings?.opportunityNotifications ?? true,
+					newsletterNotifications: settings?.newsletterNotifications ?? true,
+					preferences: parsePreferences(settings?.preferences),
+				}}
+			/>
+		</AppShell>
 	)
 }
