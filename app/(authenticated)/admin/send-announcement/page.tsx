@@ -2,9 +2,9 @@ import type { Metadata } from "next"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { AnnouncementForm } from "@/components/admin/announcement-form"
-import { NotificationBell } from "@/components/notifications/notification-bell"
 import { auth } from "@/lib/auth"
 import { isAdmin } from "@/lib/roles"
+import { AppShell } from "@/components/layout/app-shell"
 
 export const metadata: Metadata = {
 	title: "Send announcements | MediMate",
@@ -13,19 +13,25 @@ export const metadata: Metadata = {
 export default async function SendAnnouncementPage() {
 	const session = await auth.api.getSession({ headers: await headers() })
 
-	if (!isAdmin(session?.user)) {
+	if (!session || !isAdmin(session?.user)) {
 		redirect("/home")
 	}
 
 	return (
-		<div className="w-full">
-			<header className="flex items-center justify-between gap-3 border-b border-base-300 px-5 py-3 sm:px-8">
-				<h1 className="text-3xl text-primary">Admin</h1>
-				<NotificationBell />
-			</header>
-			<div className="px-5 py-6 sm:px-8">
-				<AnnouncementForm />
+		<AppShell
+			user={{
+				name: session.user.name,
+				email: session.user.email,
+				isAdmin: isAdmin(session.user),
+			}}
+			title="Admin"
+		>
+			<div className="w-full">
+				<div className="px-5 py-6 sm:px-8">
+					<AnnouncementForm />
+				</div>
 			</div>
-		</div>
+
+		</AppShell>
 	)
 }

@@ -68,7 +68,7 @@ export function ApplicationList() {
 			})
 
 		return () => controller.abort()
-	}, [debouncedQuery, status, sort, reloadKey])
+	}, [debouncedQuery, status, sort])
 
 	const reload = useCallback(() => setReloadKey((key) => key + 1), [])
 

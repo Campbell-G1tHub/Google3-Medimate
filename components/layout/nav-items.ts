@@ -20,7 +20,7 @@ export const NAV_ITEMS: NavItem[] = [
 	{ label: "Profile", href: "/profile", icon: User },
 	{
 		label: "Admin",
-		href: "/dashboard/admin/send-announcement",
+		href: "/admin/send-announcement",
 		icon: Shield,
 		adminOnly: true,
 	},
