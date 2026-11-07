@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import { auth } from "@/lib/auth"
+import { hasAppAccess } from "@/lib/volunteer-access"
 
 export type SessionUser = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>["user"]
 
@@ -10,7 +11,10 @@ export function isAdmin(user: Pick<SessionUser, "role"> | null | undefined) {
 
 type GuardResult = { user: SessionUser; response?: never } | { user?: never; response: NextResponse }
 
-/** Returns a 401 response when signed out, or 403 when `admin` is required but missing. */
+/**
+ * Returns 401 when signed out, and 403 when `admin` is required but missing or the
+ * volunteer's application is not approved.
+ */
 export async function requireApiUser(
 	request: Request,
 	{ admin = false }: { admin?: boolean } = {},
@@ -30,6 +34,15 @@ export async function requireApiUser(
 		return {
 			response: NextResponse.json(
 				{ success: false, error: "Only admins can do that." },
+				{ status: 403 },
+			),
+		}
+	}
+
+	if (!(await hasAppAccess(session.user))) {
+		return {
+			response: NextResponse.json(
+				{ success: false, error: "Your volunteer application has not been approved yet." },
 				{ status: 403 },
 			),
 		}

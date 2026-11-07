@@ -95,6 +95,15 @@ test.describe("POST /api/admin/send-announcement", () => {
 		expect(await getNotifications("admin")).toHaveLength(0)
 	})
 
+	test("skips volunteers who are not approved yet", async ({ baseURL }) => {
+		const api = await apiAs("admin", baseURL!)
+		const response = await api.post(SEND_API, { data: { ...validAnnouncement, sendTo: ["all"] } })
+
+		expect(response.status()).toBe(200)
+		expect(await getNotifications("boardVolunteer")).toHaveLength(1)
+		expect(await getNotifications("pendingVolunteer")).toHaveLength(0)
+	})
+
 	test("accepts a newsletter with a link", async ({ baseURL }) => {
 		const api = await apiAs("admin", baseURL!)
 		const response = await api.post(SEND_API, {
@@ -143,6 +152,16 @@ test.describe("POST /api/volunteers/dashboard/inbox/list-notifications", () => {
 			data: { userId: await getUserId("fundraisingVolunteer") },
 		})
 		expect(response.status()).toBe(403)
+	})
+
+	test("blocks volunteers whose application is still pending", async ({ baseURL }) => {
+		const api = await apiAs("pendingVolunteer", baseURL!)
+		const response = await api.post(LIST_API, { data: {} })
+
+		expect(response.status()).toBe(403)
+		expect((await response.json()).error).toBe(
+			"Your volunteer application has not been approved yet.",
+		)
 	})
 })
 
