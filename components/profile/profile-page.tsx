@@ -91,7 +91,7 @@ function Modal({
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/30 p-4">
 			<section
 				aria-modal="true"
-				className="w-full max-w-[490px] overflow-hidden rounded-[20px] border-[3px] border-primary bg-white shadow-2xl"
+				className="w-full max-w-[490px] overflow-hidden rounded-[20px] bg-white shadow-2xl"
 				role="dialog"
 			>
 				{title && (
@@ -112,7 +112,7 @@ function Modal({
 
 function YesNo({ value, onChange }: { value: boolean; onChange: (value: boolean) => void }) {
 	return (
-		<div className="flex h-8 w-[104px] rounded-full border-2 border-primary p-0.5 text-xs font-bold">
+		<div className="flex h-8 w-[104px] rounded-full p-0.5 text-xs font-bold">
 			<button
 				className={`flex-1 rounded-full ${value ? "bg-primary text-white" : "text-primary"}`}
 				onClick={() => onChange(true)}

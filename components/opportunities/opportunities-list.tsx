@@ -2,6 +2,12 @@
 
 import type { ReactNode, SVGProps } from "react"
 import { useMemo, useState } from "react"
+import {
+	CalendarIcon,
+	formatOpportunityDateTime,
+	MapPinIcon,
+	OpportunityCardBase,
+} from "@/components/opportunities/opportunity-card-base"
 import { Button } from "@/components/ui/button"
 
 export interface Opportunity {
@@ -37,29 +43,6 @@ function Icon({ children, ...props }: SVGProps<SVGSVGElement> & { children: Reac
 		</svg>
 	)
 }
-function MapPinIcon(props: SVGProps<SVGSVGElement>) {
-	return (
-		<Icon {...props}>
-			<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-			<circle cx="12" cy="10" r="2.5" />
-		</Icon>
-	)
-}
-function CalendarIcon(props: SVGProps<SVGSVGElement>) {
-	return (
-		<Icon {...props}>
-			<rect height="15" rx="2" width="18" x="3" y="5" />
-			<path d="M16 3v4M8 3v4M3 10h18" />
-		</Icon>
-	)
-}
-function ExpandIcon(props: SVGProps<SVGSVGElement>) {
-	return (
-		<Icon {...props}>
-			<path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7" />
-		</Icon>
-	)
-}
 function UserCheckIcon(props: SVGProps<SVGSVGElement>) {
 	return (
 		<Icon height="42" width="42" {...props}>
@@ -76,15 +59,6 @@ function CheckIcon(props: SVGProps<SVGSVGElement>) {
 			<path d="m9 12 2.5 2.5L21 5" />
 		</Icon>
 	)
-}
-function formatDateTime(value: string | null) {
-	if (!value) return "Time to be confirmed"
-	return new Intl.DateTimeFormat("en-AU", {
-		day: "2-digit",
-		month: "2-digit",
-		hour: "numeric",
-		minute: "2-digit",
-	}).format(new Date(value))
 }
 function categoryFor(opportunity: Opportunity) {
 	const title = opportunity.title.toLowerCase()
@@ -202,29 +176,13 @@ function OpportunityCard({
 }) {
 	const reserve = opportunity.title.toLowerCase().includes("warehouse")
 	return (
-		<article className="flex h-36 w-48 shrink-0 flex-col rounded-2xl border-2 border-primary bg-white p-2 text-[10px] shadow-sm">
-			<div className="flex items-start justify-between gap-2">
-				<p className="font-bold text-primary">{categoryFor(opportunity)}</p>
-				<button
-					aria-label={`View details for ${opportunity.title}`}
-					className="text-primary"
-					onClick={onDetails}
-					type="button"
-				>
-					<ExpandIcon />
-				</button>
-			</div>
-			<h2 className="mt-1 font-bold text-primary">{opportunity.title}</h2>
-			<div className="mt-1.5 space-y-0.5 text-primary">
-				<p className="flex items-center gap-1">
-					<MapPinIcon />
-					{opportunity.location ?? "Location to be confirmed"}
-				</p>
-				<p className="flex items-center gap-1">
-					<CalendarIcon />
-					{formatDateTime(opportunity.startsAt)}
-				</p>
-			</div>
+		<OpportunityCardBase
+			detailsLabel={`View details for ${opportunity.title}`}
+			event={opportunity}
+			header={<p className="font-bold text-primary">{categoryFor(opportunity)}</p>}
+			onDetails={onDetails}
+			size="compact"
+		>
 			{view === "available" && <p className="mt-1 font-bold text-accent">3 spots left</p>}
 			<div className="mt-auto pt-1">
 				<Button
@@ -236,7 +194,7 @@ function OpportunityCard({
 					{view === "attended" ? "My details" : reserve ? "Reserve" : "Sign up"}
 				</Button>
 			</div>
-		</article>
+		</OpportunityCardBase>
 	)
 }
 
@@ -473,7 +431,7 @@ export function OpportunitiesList({
 					{displayed.length === 0 ? (
 						<p className="mt-4 text-sm text-primary">No opportunities match your filters.</p>
 					) : (
-						<div className="mt-2 flex flex-wrap gap-2">
+						<div className="mt-2 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
 							{displayed.map((opportunity) => (
 								<OpportunityCard
 									key={opportunity.id}
@@ -517,7 +475,7 @@ export function OpportunitiesList({
 								: "mt-2 flex items-center gap-1.5 text-xs font-medium text-primary"
 						}
 					>
-						<MapPinIcon className="h-4 w-4" />
+						<MapPinIcon aria-hidden="true" className="h-4 w-4" />
 						{selected.location ?? "Location to be confirmed"}
 					</p>
 					<p
@@ -527,8 +485,8 @@ export function OpportunitiesList({
 								: "mt-1 flex items-center gap-1.5 text-xs font-medium text-primary"
 						}
 					>
-						<CalendarIcon className="h-4 w-4" />
-						{formatDateTime(selected.startsAt)}
+						<CalendarIcon aria-hidden="true" className="h-4 w-4" />
+						{formatOpportunityDateTime(selected.startsAt)}
 					</p>
 					{!selected.signedUp && <p className="mt-2 text-xs font-bold text-accent">3 spots left</p>}
 					<hr className="my-2 border-primary" />
@@ -575,7 +533,7 @@ export function OpportunitiesList({
 						</h2>
 						<p className="mx-auto mt-3 max-w-sm text-sm text-black">
 							You&apos;re about to {action === "reserve" ? "reserve" : "sign-up for"}{" "}
-							<strong>{selected.title}</strong> on {formatDateTime(selected.startsAt)} in{" "}
+							<strong>{selected.title}</strong> on {formatOpportunityDateTime(selected.startsAt)} in{" "}
 							{selected.location ?? "the local area"}.
 						</p>
 						<div className="mt-5 flex flex-wrap justify-center gap-3">
@@ -612,7 +570,7 @@ export function OpportunitiesList({
 						</h2>
 						<p className="mx-auto mt-3 max-w-sm text-sm text-black">
 							{action === "reserve" ? "You reserved for" : "You secured your spot for"}{" "}
-							<strong>{selected.title}</strong> on {formatDateTime(selected.startsAt)}.
+							<strong>{selected.title}</strong> on {formatOpportunityDateTime(selected.startsAt)}.
 						</p>
 						<Button
 							className="mt-5 h-9 min-h-0 border-none bg-accent px-6 text-sm font-bold text-white hover:bg-accent/90"

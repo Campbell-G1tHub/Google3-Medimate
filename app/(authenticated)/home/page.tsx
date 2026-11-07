@@ -1,12 +1,17 @@
 "use client"
 
 import type { ReactNode, SVGProps } from "react"
-import { useEffect, useMemo, useState } from "react"
+import { Children, useEffect, useMemo, useState } from "react"
+import { AppShell } from "@/components/layout/app-shell"
+import {
+	CalendarIcon,
+	formatOpportunityDateTime,
+	MapPinIcon,
+	OpportunityCardBase,
+} from "@/components/opportunities/opportunity-card-base"
 import { Button } from "@/components/ui/button"
 import { useSession } from "@/lib/auth-client"
-import { AppShell } from "@/components/layout/app-shell"
 import { isAdmin } from "@/lib/roles"
-
 
 type EventCard = {
 	id: string
@@ -40,29 +45,6 @@ function Icon({ children, ...props }: SVGProps<SVGSVGElement> & { children: Reac
 	)
 }
 
-function MapPinIcon(props: SVGProps<SVGSVGElement>) {
-	return (
-		<Icon {...props}>
-			<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-			<circle cx="12" cy="10" r="2.5" />
-		</Icon>
-	)
-}
-function CalendarIcon(props: SVGProps<SVGSVGElement>) {
-	return (
-		<Icon {...props}>
-			<rect height="15" rx="2" width="18" x="3" y="5" />
-			<path d="M16 3v4M8 3v4M3 10h18" />
-		</Icon>
-	)
-}
-function ExpandIcon(props: SVGProps<SVGSVGElement>) {
-	return (
-		<Icon {...props}>
-			<path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7" />
-		</Icon>
-	)
-}
 function BellIcon() {
 	return (
 		<Icon height="23" width="23">
@@ -121,16 +103,6 @@ function VolunteerCheckIcon(props: SVGProps<SVGSVGElement>) {
 	)
 }
 
-function formatDate(value: string | null) {
-	if (!value) return "Time to be confirmed"
-	return new Intl.DateTimeFormat("en-AU", {
-		day: "2-digit",
-		month: "2-digit",
-		hour: "numeric",
-		minute: "2-digit",
-	}).format(new Date(value))
-}
-
 function categoryFor(event: EventCard) {
 	const value = event.title.toLowerCase()
 	if (value.includes("delivery")) return "Deliveries"
@@ -149,29 +121,13 @@ function EventCardView({
 }) {
 	const registered = Boolean(event.registrationStatus)
 	return (
-		<article className="flex h-44 w-40 shrink-0 flex-col rounded-2xl border-2 border-primary bg-white p-2.5 text-[11px] shadow-sm sm:w-48 sm:text-xs">
-			<div className="flex items-start justify-between gap-2">
-				<p className="font-bold text-primary">{categoryFor(event)}</p>
-				<button
-					aria-label={`View details for ${event.title}`}
-					className="-mr-0.5 -mt-0.5 text-primary transition hover:text-secondary"
-					onClick={onDetails}
-					type="button"
-				>
-					<ExpandIcon />
-				</button>
-			</div>
-			<h3 className="mt-2 font-bold text-primary">{event.title}</h3>
-			<div className="mt-3 space-y-1 text-primary">
-				<p className="flex items-center gap-1">
-					<MapPinIcon />
-					{event.location ?? "Location to be confirmed"}
-				</p>
-				<p className="flex items-center gap-1">
-					<CalendarIcon />
-					{formatDate(event.startsAt)}
-				</p>
-			</div>
+		<OpportunityCardBase
+			detailsLabel={`View details for ${event.title}`}
+			event={event}
+			header={<p className="font-bold text-primary">{categoryFor(event)}</p>}
+			onDetails={onDetails}
+			size="comfortable"
+		>
 			{!registered && <p className="mt-2 font-bold text-accent">3 spots left</p>}
 			<div className="mt-auto pt-2">
 				{registered ? (
@@ -201,15 +157,20 @@ function EventCardView({
 					</Button>
 				)}
 			</div>
-		</article>
+		</OpportunityCardBase>
 	)
 }
 
 function EventRow({ children, empty }: { children: ReactNode; empty: string }) {
+	const isEmpty = Children.count(children) === 0
 	return (
-		<div className="mt-2 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:thin]">
-			{children || (
-				<p className="rounded-xl border border-base-300 px-4 py-5 text-sm text-primary">{empty}</p>
+		<div className="mt-2 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+			{isEmpty ? (
+				<p className="col-span-full rounded-xl border border-base-300 px-4 py-5 text-sm text-primary">
+					{empty}
+				</p>
+			) : (
+				children
 			)}
 		</div>
 	)
@@ -345,7 +306,9 @@ export default function DashboardPage() {
 				name: session.user.name,
 				email: session.user.email,
 				isAdmin: isAdmin(session.user),
-			}} title={"Dashboard"}>
+			}}
+			title={"Dashboard"}
+		>
 			<main className="bg-white pb-16 md:pb-0">
 				<div className="flex">
 					<section className="min-w-0 flex-1 px-4 py-4 md:px-8 md:py-6">
@@ -399,12 +362,12 @@ export default function DashboardPage() {
 						<p className="text-sm font-bold text-primary">{categoryFor(selected)}</p>
 						<h2 className="mt-1 text-base font-bold text-black">{selected.title}</h2>
 						<p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-primary">
-							<MapPinIcon className="h-4 w-4 shrink-0" />
+							<MapPinIcon aria-hidden="true" className="h-4 w-4 shrink-0" />
 							{selected.location ?? "Location to be confirmed"}
 						</p>
 						<p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-primary">
-							<CalendarIcon className="h-4 w-4 shrink-0" />
-							{formatDate(selected.startsAt)}
+							<CalendarIcon aria-hidden="true" className="h-4 w-4 shrink-0" />
+							{formatOpportunityDateTime(selected.startsAt)}
 						</p>
 
 						{/* Todo wire to actual data */}
@@ -434,19 +397,22 @@ export default function DashboardPage() {
 								<VolunteerCheckIcon className="mx-auto h-9 w-9" />
 							)}
 							<h2 className="mt-3 text-lg font-bold text-black">
-								{dialog === "confirm-cancel" ? "Cancel this event?" : "Sign up for this opportunity?"}
+								{dialog === "confirm-cancel"
+									? "Cancel this event?"
+									: "Sign up for this opportunity?"}
 							</h2>
 							<p className="mx-auto mt-3 max-w-sm text-sm text-black">
 								{dialog === "confirm-cancel" ? (
 									<>
-										You&apos;re about to cancel your sign-up for <strong>{selected.title}</strong> on{" "}
-										{formatDate(selected.startsAt)}. This will free up your spot for another
-										volunteer.
+										You&apos;re about to cancel your sign-up for <strong>{selected.title}</strong>{" "}
+										on {formatOpportunityDateTime(selected.startsAt)}. This will free up your spot
+										for another volunteer.
 									</>
 								) : (
 									<>
 										You&apos;re about to sign up for <strong>{selected.title}</strong> on{" "}
-										{formatDate(selected.startsAt)} in {selected.location ?? "the local area"}.
+										{formatOpportunityDateTime(selected.startsAt)} in{" "}
+										{selected.location ?? "the local area"}.
 									</>
 								)}
 							</p>
@@ -484,13 +450,13 @@ export default function DashboardPage() {
 								{action === "cancel" ? (
 									<>
 										You cancelled your sign-up for <strong>{selected.title}</strong> on{" "}
-										{formatDate(selected.startsAt)}. Your spot has been freed up for another
-										volunteer.
+										{formatOpportunityDateTime(selected.startsAt)}. Your spot has been freed up for
+										another volunteer.
 									</>
 								) : (
 									<>
 										You secured your spot for <strong>{selected.title}</strong> on{" "}
-										{formatDate(selected.startsAt)}.
+										{formatOpportunityDateTime(selected.startsAt)}.
 									</>
 								)}
 							</p>
@@ -506,7 +472,6 @@ export default function DashboardPage() {
 					</Modal>
 				)}
 			</main>
-		</AppShell >
-
+		</AppShell>
 	)
 }
