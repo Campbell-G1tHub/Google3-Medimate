@@ -74,6 +74,19 @@ enum AnnouncementType {
   NEWSLETTER
 }
 
+model VolunteerNotificationSettings {
+  volunteerId              String    @id @map("volunteer_id") @db.Uuid
+  appNotifications         Boolean   @default(true) @map("app_notifications")
+  opportunityNotifications Boolean   @default(true) @map("opportunity_notifications")
+  newsletterNotifications  Boolean   @default(true) @map("newsletter_notifications")
+  preferences              String    @default("")
+  createdAt                DateTime  @default(now()) @map("created_at") @db.Timestamptz(0)
+  updatedAt                DateTime  @updatedAt @map("updated_at") @db.Timestamptz(0)
+  volunteer                Volunteer @relation(fields: [volunteerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "volunteer_notification_settings_volunteer_id_foreign")
+
+  @@map("volunteer_notification_settings")
+}
+
 model Post {
   id              String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   eventId         String?              @map("event_id") @db.Uuid
@@ -88,9 +101,9 @@ model Post {
   createdAt       DateTime             @default(now()) @map("created_at") @db.Timestamptz(0)
   notifications   Notification[]
   targetGroups    PostRecipientGroup[]
-  recipientGroups VolunteerGroup? @relation(fields: [groupId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "post_volunteer_group_id_foreign")
-  author          Volunteer       @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "post_volunteer_id_foreign")
-  origin          Event?          @relation(fields: [eventId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "post_event_id_foreign")
+  recipientGroups VolunteerGroup?      @relation(fields: [groupId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "post_volunteer_group_id_foreign")
+  author          Volunteer            @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "post_volunteer_id_foreign")
+  origin          Event?               @relation(fields: [eventId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "post_event_id_foreign")
 
   @@map("posts")
 }
@@ -138,15 +151,15 @@ enum volunteerRole {
 }
 
 model Volunteer {
-  id                        String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                        String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name                      String
-  email                     String                     @unique(map: "volunteer_email_unique")
-  emailVerified             Boolean                    @default(false) @map("email_verified")
-  onboardingCompleted       Boolean                    @default(false) @map("onboarding_completed")
+  email                     String                         @unique(map: "volunteer_email_unique")
+  emailVerified             Boolean                        @default(false) @map("email_verified")
+  onboardingCompleted       Boolean                        @default(false) @map("onboarding_completed")
   image                     String?
-  role                      volunteerRole              @default(VOLUNTEER)
-  createdAt                 DateTime                   @default(now()) @map("created_at") @db.Timestamptz(0)
-  updatedAt                 DateTime                   @default(now()) @map("updated_at") @db.Timestamptz(0)
+  role                      volunteerRole                  @default(VOLUNTEER)
+  createdAt                 DateTime                       @default(now()) @map("created_at") @db.Timestamptz(0)
+  updatedAt                 DateTime                       @default(now()) @map("updated_at") @db.Timestamptz(0)
   accounts                  Account[]
   posts                     Post[]
   sessions                  Session[]
@@ -158,6 +171,7 @@ model Volunteer {
   volunteerGroupPreferences VolunteerGroupPreference[]
   eventAttendees            EventAttendee[]
   notificationPermissions   Notification_Permission[]
+  notificationSettings      VolunteerNotificationSettings?
   notifications             Notification[]
 
   @@map("volunteers")
@@ -260,6 +274,7 @@ model EventAttendee {
   volunteerId String         @map("volunteer_id") @db.Uuid
   status      AttendeeStatus @default(ATTENDING)
   createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(0)
+  ordersPacked Int           @default(0) @map("orders_packed")
   event       Event          @relation(fields: [eventId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "event_attendee_event_id_foreign")
   attendee    Volunteer      @relation(fields: [volunteerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "event_attendees")
 
@@ -278,6 +293,8 @@ model VolunteerInformation {
   skillsAndStrengths  String                     @map("skills_and_strengths")
   medicalConditions   String?                    @map("medical_conditions")
   carType             String?                    @map("car_type")
+  forkliftLicense     Boolean                    @default(false) @map("forklift_license")
+  firstAid            Boolean                    @default(false) @map("first_aid")
   frequentSuburbs     String?                    @map("frequent_suburbs")
   frequency           String                     @db.VarChar(255)
   availability        String                     @db.VarChar(255)
