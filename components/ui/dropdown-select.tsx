@@ -21,6 +21,15 @@ export interface DropdownSelectProps {
 	options: readonly DropdownOption[]
 	optionClassName?: string
 	placeholder?: string
+	/**
+	 * When true, prevents the value from becoming empty. Single-select keeps the
+	 * current value when it is toggled again instead of clearing it; multi-select
+	 * prevents unchecking the last selected option. When `onToggleOption` is provided
+	 * the parent owns the mutation and remains responsible for not emptying the value.
+	 */
+	noEmptySelects?: boolean
+	/** Multi-select only: when true, render checkbox-style items. Defaults to true. */
+	showCheckboxes?: boolean
 	/** Overrides the default button label derived from `value`. */
 	summaryValue?: (value: string | string[]) => string
 	value: string | string[]
@@ -35,10 +44,11 @@ const isMultiple = (value: string | string[]): value is string[] => Array.isArra
 
 /**
  * A controlled select-style dropdown. When `value` is an array the dropdown is a
- * multi-select built from `Checkbox`; otherwise it is a single-select where picking
- * the already-selected option clears the value again (toggle behaviour). Uses
- * headless open/close state with the same outside-click and Escape handling as the
- * rest of the UI kit, styled with Daisy UI classes.
+ * multi-select built from `Checkbox` (unless `showCheckboxes` is false); otherwise it
+ * is a single-select where picking the already-selected option clears the value again
+ * (toggle behaviour, blocked by `noEmptySelects`). Uses headless open/close state with
+ * the same outside-click and Escape handling as the rest of the UI kit, styled with
+ * Daisy UI classes.
  */
 export function DropdownSelect({
 	className,
@@ -52,6 +62,8 @@ export function DropdownSelect({
 	options,
 	optionClassName,
 	placeholder,
+	noEmptySelects = false,
+	showCheckboxes = true,
 	summaryValue,
 	value,
 	wrapperClassName,
@@ -103,6 +115,9 @@ export function DropdownSelect({
 
 	function toggleSingle(option: DropdownOption) {
 		if (!multiple) {
+			if (noEmptySelects && option.value === value) {
+				return
+			}
 			onChange(option.value === value ? "" : option.value)
 			setIsOpen(false)
 			onBlur?.()
@@ -111,6 +126,10 @@ export function DropdownSelect({
 
 	function toggleMulti(option: DropdownOption, checked: boolean) {
 		if (!multiple) {
+			return
+		}
+
+		if (noEmptySelects && !checked && value.length === 1) {
 			return
 		}
 
@@ -171,18 +190,40 @@ export function DropdownSelect({
 							.join(" ")}
 					>
 						{multiple ? (
-							<div className="flex flex-col gap-4 px-4 py-4">
-								{options.map((option) => (
-									<Checkbox
-										key={option.value}
-										name="dropdown-select"
-										value={option.value}
-										label={option.label}
-										checked={value.includes(option.value)}
-										onChange={(event) => toggleMulti(option, event.target.checked)}
-									/>
-								))}
-							</div>
+							showCheckboxes ? (
+								<div className="flex flex-col gap-4 px-4 py-4">
+									{options.map((option) => (
+										<Checkbox
+											key={option.value}
+											name="dropdown-select"
+											value={option.value}
+											label={option.label}
+											checked={value.includes(option.value)}
+											onChange={(event) => toggleMulti(option, event.target.checked)}
+										/>
+									))}
+								</div>
+							) : (
+								<ul className="menu w-full">
+									{options.map((option) => (
+										<li key={option.value}>
+											<button
+												type="button"
+												onClick={() => toggleMulti(option, !value.includes(option.value))}
+												className={[
+													"flex w-full items-center justify-between gap-2",
+													value.includes(option.value) && "bg-base-200 font-bold",
+													optionClassName,
+												]
+													.filter(Boolean)
+													.join(" ")}
+											>
+												{option.label}
+											</button>
+										</li>
+									))}
+								</ul>
+							)
 						) : (
 							<ul className="menu w-full">
 								{options.map((option) => (
@@ -199,12 +240,6 @@ export function DropdownSelect({
 												.join(" ")}
 										>
 											{option.label}
-											<span
-												aria-hidden="true"
-												className={`grid h-4 w-4 shrink-0 place-items-center border border-primary text-[10px] leading-none ${value === option.value ? "bg-primary text-white" : "bg-white text-transparent"}`}
-											>
-												✓
-											</span>
 										</button>
 									</li>
 								))}

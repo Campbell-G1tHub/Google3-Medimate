@@ -29,7 +29,7 @@ export function Checkbox({
 	const inputId = id ?? (name && value !== undefined ? `${name}-${String(value)}` : name)
 	const errorId = inputId ? `${inputId}-error` : undefined
 	const classes = [
-		"checkbox checkbox-secondary checkbox-sm mt-0.5 shrink-0 rounded-sm border-neutral/40",
+		"checkbox checkbox-accent checkbox-sm mt-0.5 shrink-0 rounded-sm border-neutral/40",
 		error && "checkbox-error",
 		className,
 	]

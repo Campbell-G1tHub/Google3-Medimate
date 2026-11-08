@@ -25,6 +25,7 @@ export function AdminPanel() {
 				label="Admin section"
 				labelClassName="sr-only"
 				options={ADMIN_VIEW_OPTIONS}
+				noEmptySelects
 				value={view}
 				onChange={(next) => setView(next as AdminView)}
 				className="sm:max-w-xs"
