@@ -282,6 +282,13 @@ function NotificationRow({ item, isExpanded, onOpen }: NotificationRowProps) {
 					</a>
 				</div>
 			)}
+			{isExpanded && announcement.eventId && (
+				<div className="px-4 pb-3 pl-9">
+					<a href="/opportunities" className="link link-secondary text-sm font-medium">
+						View the opportunity
+					</a>
+				</div>
+			)}
 		</li>
 	)
 }

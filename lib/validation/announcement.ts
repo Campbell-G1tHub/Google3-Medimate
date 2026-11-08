@@ -37,12 +37,14 @@ export const announcementSchema = z
 			.min(1, "Enter a message")
 			.max(5000, "Keep the message under 5000 characters"),
 		link: z.string().trim().optional(),
+		eventId: z.string().trim().optional(),
 		sendTo: z
 			.array(z.string(), "Choose who to send this to")
 			.min(1, "Choose who to send this to"),
 	})
 	.superRefine((values, ctx) => {
 		const link = values.link ?? ""
+		const eventId = (values.eventId ?? "").trim()
 
 		if (values.type === "NEWSLETTER" && !link) {
 			ctx.addIssue({ code: "custom", path: ["link"], message: "Enter the newsletter link" })
@@ -60,16 +62,29 @@ export const announcementSchema = z
 			})
 		}
 
+		if (values.type === "OPPORTUNITY" && !eventId) {
+			ctx.addIssue({ code: "custom", path: ["eventId"], message: "Choose an opportunity to link" })
+		} else if (eventId && values.type !== "OPPORTUNITY") {
+			ctx.addIssue({
+				code: "custom",
+				path: ["eventId"],
+				message: "Only opportunity announcements can link an opportunity",
+			})
+		} else if (eventId && !z.uuid().safeParse(eventId).success) {
+			ctx.addIssue({ code: "custom", path: ["eventId"], message: "Choose a listed opportunity" })
+		}
+
 		if (values.sendTo.some((value) => value !== ALL_VOLUNTEERS && !GROUP_VALUES.has(value))) {
 			ctx.addIssue({ code: "custom", path: ["sendTo"], message: "Choose a listed group" })
 		}
 	})
-	.transform(({ link, sendTo, ...values }) => {
+	.transform(({ link, eventId, sendTo, ...values }) => {
 		const sendToAll = sendTo.includes(ALL_VOLUNTEERS)
 
 		return {
 			...values,
 			link: link || undefined,
+			eventId: eventId?.trim() || undefined,
 			sendToAll,
 			groups: sendToAll ? [] : [...new Set(sendTo)],
 		}

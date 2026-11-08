@@ -41,6 +41,7 @@ export async function createAnnouncement(authorId: string, input: AnnouncementIn
 				title: input.subject,
 				body: input.message,
 				link: input.link,
+				eventId: input.eventId,
 				sendToAll: input.sendToAll,
 				targetGroups: { create: groups.map((group) => ({ groupId: group.id })) },
 			},
@@ -83,6 +84,7 @@ export async function listNotifications(volunteerId: string) {
 				subject: notification.post.title,
 				message: notification.post.body,
 				link: notification.post.link,
+				eventId: notification.post.eventId,
 			},
 		})),
 	}
