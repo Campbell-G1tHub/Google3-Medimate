@@ -4,11 +4,10 @@ import type { ReactNode, SVGProps } from "react"
 import { Children, useEffect, useMemo, useState } from "react"
 import { AppShell } from "@/components/layout/app-shell"
 import {
-	CalendarIcon,
 	formatOpportunityDateTime,
-	MapPinIcon,
 	OpportunityCardBase,
 } from "@/components/opportunities/opportunity-card-base"
+import { OpportunityDetailsModal } from "@/components/opportunities/opportunity-details-modal"
 import { Button } from "@/components/ui/button"
 import { useSession } from "@/lib/auth-client"
 import { isAdmin } from "@/lib/roles"
@@ -176,40 +175,15 @@ function EventRow({ children, empty }: { children: ReactNode; empty: string }) {
 	)
 }
 
-function Modal({
-	children,
-	onClose,
-	variant,
-}: {
-	children: ReactNode
-	onClose: () => void
-	variant: "registered-detail" | "opportunity-detail" | "confirmation" | "success"
-}) {
-	const containerClass = {
-		"registered-detail": "relative max-w-[28rem] rounded-[1.25rem] border-[3px] border-primary p-3",
-		"opportunity-detail": "relative max-w-[28rem] rounded-[1.25rem] border-2 border-primary p-3",
-		confirmation: "max-w-md rounded-2xl border-2 border-primary px-6 py-7",
-		success: "max-w-md rounded-2xl border-2 border-primary px-6 py-7",
-	}[variant]
-	const hasCloseButton = variant === "registered-detail" || variant === "opportunity-detail"
-
+/** The confirmation and success dialogs of the sign-up flow; both close from their buttons. */
+function Modal({ children }: { children: ReactNode }) {
 	return (
 		<div
 			aria-modal="true"
 			className="fixed inset-0 z-50 grid place-items-center bg-primary/35 p-5"
 			role="dialog"
 		>
-			<div className={`w-full bg-white shadow-xl ${containerClass}`}>
-				{hasCloseButton && (
-					<button
-						aria-label="Close dialog"
-						className="absolute right-3 top-2 text-xl leading-none text-primary"
-						onClick={onClose}
-						type="button"
-					>
-						×
-					</button>
-				)}
+			<div className="w-full max-w-md rounded-2xl  bg-white px-6 py-7 shadow-xl">
 				{children}
 			</div>
 		</div>
@@ -355,41 +329,23 @@ export default function DashboardPage() {
 					</section>
 				</div>
 				{selected && dialog === "details" && (
-					<Modal
+					<OpportunityDetailsModal
+						attended={Boolean(selected.registrationStatus)}
+						badge={selected.registrationStatus ? "Confirmed" : undefined}
 						onClose={closeDialog}
-						variant={selected.registrationStatus ? "registered-detail" : "opportunity-detail"}
-					>
-						<p className="text-sm font-bold text-primary">{categoryFor(selected)}</p>
-						<h2 className="mt-1 text-base font-bold text-black">{selected.title}</h2>
-						<p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-primary">
-							<MapPinIcon aria-hidden="true" className="h-4 w-4 shrink-0" />
-							{selected.location ?? "Location to be confirmed"}
-						</p>
-						<p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-primary">
-							<CalendarIcon aria-hidden="true" className="h-4 w-4 shrink-0" />
-							{formatOpportunityDateTime(selected.startsAt)}
-						</p>
-
-						{/* Todo wire to actual data */}
-						<p className="mt-2 text-xs font-bold text-accent">3 spots left</p>
-						<hr className="my-2 border-primary" />
-						<h3 className="text-xs font-bold text-black">About this event</h3>
-						<p className="mt-0.5 text-[11px] leading-3 text-primary">{selected.description}</p>
-						<h3 className="mt-1 text-xs font-bold text-black">Requirements</h3>
-						<p className="text-[11px] text-primary">
-							{selected.title.toLowerCase().includes("delivery")
-								? "Car · Driver licence"
-								: "No specific requirements"}
-						</p>
-						{selected.registrationStatus && (
-							<div className="mt-2 rounded-full bg-primary py-1 text-center text-xs font-bold text-white">
-								Confirmed
-							</div>
-						)}
-					</Modal>
+						opportunity={{
+							category: categoryFor(selected),
+							description: selected.description,
+							location: selected.location,
+							startsAt: selected.startsAt,
+							title: selected.title,
+						}}
+						/* Todo wire to actual data */
+						spotsLeft={3}
+					/>
 				)}
 				{selected && (dialog === "confirm-sign-up" || dialog === "confirm-cancel") && (
-					<Modal onClose={closeDialog} variant="confirmation">
+					<Modal>
 						<div className="text-center">
 							{dialog === "confirm-cancel" ? (
 								<WarningIcon className="mx-auto h-9 w-9" />
@@ -440,7 +396,7 @@ export default function DashboardPage() {
 					</Modal>
 				)}
 				{selected && dialog === "success" && (
-					<Modal onClose={closeDialog} variant="success">
+					<Modal>
 						<div className="text-center">
 							<CheckIcon className="mx-auto h-10 w-10" />
 							<h2 className="mt-3 text-lg font-bold text-black">

@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+import { OpportunityDetailsModal } from "@/components/opportunities/opportunity-details-modal"
 import { Button } from "@/components/ui/button"
 import { DropdownSelect } from "@/components/ui/dropdown-select"
 import type { AdminOpportunity } from "@/lib/opportunities"
@@ -72,6 +73,7 @@ export function OpportunityList() {
 	const [dates, setDates] = useState<string[]>([])
 	const [sort, setSort] = useState<OpportunitySort>("newest")
 	const [isCreating, setIsCreating] = useState(false)
+	const [detailsFor, setDetailsFor] = useState<AdminOpportunity>()
 
 	const load = useCallback(async (signal?: AbortSignal) => {
 		const response = await fetch(OPPORTUNITIES_API, { signal })
@@ -279,7 +281,7 @@ export function OpportunityList() {
 									</span>
 								</div>
 								<div className="flex shrink-0 items-center gap-2">
-									{/* Placeholder actions; the manage/edit flows land in a follow-up. */}
+									{/* Manage/edit flows land in a follow-up. */}
 									<Button
 										variant="accent"
 										size="small"
@@ -293,6 +295,7 @@ export function OpportunityList() {
 										size="small"
 										className="px-4"
 										aria-label={`Details for ${opportunity.role}`}
+										onClick={() => setDetailsFor(opportunity)}
 									>
 										Details
 									</Button>
@@ -301,6 +304,21 @@ export function OpportunityList() {
 						))}
 					</ul>
 				</>
+			)}
+
+			{detailsFor && (
+				<OpportunityDetailsModal
+					badge={describeOpportunityStatus(detailsFor.status)}
+					onClose={() => setDetailsFor(undefined)}
+					opportunity={{
+						category: detailsFor.category,
+						description: detailsFor.description,
+						location: detailsFor.location,
+						requirements: detailsFor.requirements,
+						startsAt: detailsFor.startsAt,
+						title: detailsFor.role,
+					}}
+				/>
 			)}
 
 			{isCreating && (
