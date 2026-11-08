@@ -90,7 +90,7 @@ services:
     container_name: medimate-playwright
     # Shares the app's network so the browser reaches it on localhost:3000,
     # which matches BETTER_AUTH_URL and keeps auth cookies valid.
-    network_mode: "service:app"
+    network_mode: "service:app-dev"
     shm_size: 1gb
     env_file:
       - .env
