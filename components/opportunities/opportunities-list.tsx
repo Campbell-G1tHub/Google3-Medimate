@@ -3,11 +3,10 @@
 import type { ReactNode, SVGProps } from "react"
 import { useMemo, useState } from "react"
 import {
-	CalendarIcon,
 	formatOpportunityDateTime,
-	MapPinIcon,
 	OpportunityCardBase,
 } from "@/components/opportunities/opportunity-card-base"
+import { OpportunityDetailsModal } from "@/components/opportunities/opportunity-details-modal"
 import { Button } from "@/components/ui/button"
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select"
 
@@ -95,23 +94,19 @@ function CheckIcon(props: SVGProps<SVGSVGElement>) {
 }
 function categoryFor(opportunity: Opportunity) {
 	const title = opportunity.title.toLowerCase()
-	if (title.includes("delivery")) return "Deliveries"
-	if (title.includes("warehouse")) return "Warehouses"
-	return "Community"
+	if (title.includes("delivery")) return "Logistics"
+	if (title.includes("warehouse")) return "Warehouse"
+	return "Community Engagement"
 }
 
 function DialogFrame({
 	children,
-	onClose,
 	variant,
 }: {
 	children: ReactNode
-	onClose: () => void
-	variant: "details" | "attended-details" | "confirm" | "success" | "my-details"
+	variant: "confirm" | "success" | "my-details"
 }) {
 	const className = {
-		details: "relative max-w-[28rem] rounded-[1.25rem] border-2 border-primary p-3",
-		"attended-details": "relative max-w-[28rem] rounded-[1.25rem] border-[3px] border-primary p-3",
 		confirm: "max-w-md rounded-2xl border-2 border-primary px-6 py-7",
 		success: "max-w-md rounded-2xl border-2 border-primary px-6 py-7",
 		"my-details": "max-w-md overflow-hidden rounded-2xl border-2 border-primary p-0",
@@ -122,19 +117,7 @@ function DialogFrame({
 			className="fixed inset-0 z-50 grid place-items-center bg-primary/35 p-5"
 			role="dialog"
 		>
-			<div className={`w-full bg-white shadow-xl ${className}`}>
-				{(variant === "details" || variant === "attended-details") && (
-					<button
-						aria-label="Close dialog"
-						className="absolute right-3 top-2 text-xl leading-none text-primary"
-						onClick={onClose}
-						type="button"
-					>
-						×
-					</button>
-				)}
-				{children}
-			</div>
+			<div className={`w-full bg-white shadow-xl ${className}`}>{children}</div>
 		</div>
 	)
 }
@@ -209,19 +192,23 @@ export function OpportunitiesList({
 					activeView === "attended"
 						? opportunity.signedUp
 						: opportunity.status === "OPEN" && !opportunity.signedUp
+
 				const matchesSearch =
 					!needle ||
 					[opportunity.title, opportunity.description, opportunity.location]
 						.filter(Boolean)
 						.some((value) => value?.toLowerCase().includes(needle))
+
 				const matchesCategory =
 					categories.length === 0 ||
 					categories.some((item) =>
 						categoryFor(opportunity).toLowerCase().startsWith(item.toLowerCase()),
 					)
+
 				const matchesLocation =
 					locationsFilter.length === 0 ||
 					locationsFilter.includes(opportunity.location ?? "")
+
 				const eventDate = opportunity.startsAt ? new Date(opportunity.startsAt) : undefined
 				const today = new Date()
 				const dayDifference = eventDate
@@ -386,34 +373,22 @@ export function OpportunitiesList({
 				</section>
 			</div>
 			{selected && dialog === "details" && (
-				<DialogFrame
+				<OpportunityDetailsModal
+					attended={selected.signedUp}
 					onClose={closeDialog}
-					variant={selected.signedUp ? "attended-details" : "details"}
-				>
-					<p className="text-sm font-bold text-primary">{categoryFor(selected)}</p>
-					<h2 className="mt-1 text-base font-bold text-black">{selected.title}</h2>
-					<p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-primary">
-						<MapPinIcon aria-hidden="true" className="h-4 w-4" />
-						{selected.location ?? "Location to be confirmed"}
-					</p>
-					<p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-primary">
-						<CalendarIcon aria-hidden="true" className="h-4 w-4" />
-						{formatOpportunityDateTime(selected.startsAt)}
-					</p>
-					{!selected.signedUp && <p className="mt-2 text-xs font-bold text-accent">3 spots left</p>}
-					<hr className="my-2 border-primary" />
-					<h3 className="text-xs font-bold text-black">About this event</h3>
-					<p className="mt-0.5 text-[11px] leading-3 text-primary">{selected.description}</p>
-					<h3 className="mt-1 text-xs font-bold text-black">Requirements</h3>
-					<p className="text-[11px] text-primary">
-						{selected.title.toLowerCase().includes("delivery")
-							? "Car · Driver licence"
-							: "No specific requirements"}
-					</p>
-				</DialogFrame>
+					opportunity={{
+						category: categoryFor(selected),
+						description: selected.description,
+						location: selected.location,
+						startsAt: selected.startsAt,
+						title: selected.title,
+					}}
+					/* Todo wire to actual data */
+					spotsLeft={selected.signedUp ? undefined : 3}
+				/>
 			)}
 			{selected && dialog === "confirm" && (
-				<DialogFrame onClose={closeDialog} variant="confirm">
+				<DialogFrame variant="confirm">
 					<div className="text-center">
 						<UserCheckIcon className="mx-auto h-9 w-9" />
 						<h2 className="mt-3 text-lg font-bold text-black">
@@ -450,7 +425,7 @@ export function OpportunitiesList({
 				</DialogFrame>
 			)}
 			{selected && dialog === "success" && (
-				<DialogFrame onClose={closeDialog} variant="success">
+				<DialogFrame variant="success">
 					<div className="text-center">
 						<CheckIcon className="mx-auto h-10 w-10" />
 						<h2 className="mt-3 text-lg font-bold text-black">
@@ -472,7 +447,7 @@ export function OpportunitiesList({
 				</DialogFrame>
 			)}
 			{selected && dialog === "my-details" && (
-				<DialogFrame onClose={closeDialog} variant="my-details">
+				<DialogFrame variant="my-details">
 					<div className="flex items-center justify-between bg-primary px-4 py-3 text-sm font-bold text-white">
 						<span>My details</span>
 						<button

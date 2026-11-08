@@ -1,5 +1,5 @@
 import { type APIRequestContext, type FullConfig, request } from "@playwright/test"
-import { pool } from "./fixtures/db"
+import { deleteEventsCreatedBy, pool } from "./fixtures/db"
 import { storageStatePath, TEST_PASSWORD, TEST_USERS, type TestUserKey } from "./fixtures/users"
 
 const SERVER_READY_TIMEOUT_MS = 180_000
@@ -34,6 +34,8 @@ async function removeTestUsers() {
 		[ids],
 	)
 	await pool.query("DELETE FROM posts WHERE author_id = ANY($1::uuid[])", [ids])
+	// Events hold `onDelete: NoAction` references to their creator, so they go before the volunteers.
+	await deleteEventsCreatedBy(ids)
 	await pool.query("DELETE FROM notification_permissions WHERE volunteer_id = ANY($1::uuid[])", [ids])
 	await pool.query("DELETE FROM volunteer_group_preferences WHERE volunteer_id = ANY($1::uuid[])", [
 		ids,

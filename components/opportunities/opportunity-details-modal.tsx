@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import { CalendarIcon, formatOpportunityDateTime, MapPinIcon } from "./opportunity-card-base"
+import { Separator } from "../ui"
 
 export interface OpportunityDetailsContent {
 	category: string
