@@ -3,17 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Check, CircleX, FilePlus, TagX, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
-import { Controller, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { DropdownSelect } from "@/components/ui/dropdown-select"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import {
 	type CreateOpportunityFormValues,
 	type CreateOpportunityInput,
 	createOpportunitySchema,
-	OPPORTUNITY_CATEGORY_OPTIONS,
 } from "@/lib/validation/opportunity"
+import { OpportunityFormFields } from "./opportunity-form-fields"
 
 const CREATE_OPPORTUNITY_API = "/api/admin/opportunities"
 
@@ -26,9 +23,6 @@ const DEFAULT_VALUES: CreateOpportunityFormValues = {
 	description: "",
 	requirements: "",
 }
-
-const LABEL_CLASS = "text-sm font-bold text-primary"
-const FIELD_CLASS = "rounded-full border-primary px-4"
 
 interface CreateOpportunityResponse {
 	success: boolean
@@ -169,92 +163,7 @@ export function CreateOpportunityDialog({
 						onSubmit={(event) => void handleSubmit(onValid)(event)}
 						className="flex flex-col gap-2 p-4"
 					>
-						{/* The flex wrapper keeps the dropdown trigger hugged to its content, like the design. */}
-						<div className="flex">
-							<Controller
-								control={control}
-								name="category"
-								render={({ field, fieldState }) => (
-									<DropdownSelect
-										label="Category"
-										labelClassName={LABEL_CLASS}
-										wrapperClassName="sm:max-w-none"
-										className="sm:max-w-none"
-										buttonClassName="px-4"
-										options={OPPORTUNITY_CATEGORY_OPTIONS}
-										value={field.value ?? ""}
-										placeholder="Category"
-										error={fieldState.error?.message}
-										onChange={(next) => field.onChange(String(next))}
-										onBlur={field.onBlur}
-									/>
-								)}
-							/>
-						</div>
-
-						<Input
-							label="Role"
-							labelClassName={LABEL_CLASS}
-							className={FIELD_CLASS}
-							aria-label="Role"
-							placeholder="Role"
-							error={errors.role?.message}
-							{...register("role")}
-						/>
-
-						<Input
-							label="Location"
-							labelClassName={LABEL_CLASS}
-							className={FIELD_CLASS}
-							aria-label="Location"
-							placeholder="Location"
-							error={errors.location?.message}
-							{...register("location")}
-						/>
-
-						<Input
-							label="Time"
-							labelClassName={LABEL_CLASS}
-							className={FIELD_CLASS}
-							aria-label="Time"
-							type="datetime-local"
-							error={errors.time?.message}
-							{...register("time")}
-						/>
-
-						<Input
-							label="Capacity"
-							labelClassName={LABEL_CLASS}
-							className={FIELD_CLASS}
-							aria-label="Capacity"
-							type="number"
-							inputMode="numeric"
-							min={1}
-							placeholder="Capacity"
-							error={errors.capacity?.message}
-							{...register("capacity")}
-						/>
-
-						<Textarea
-							label="Description"
-							labelClassName={LABEL_CLASS}
-							className="rounded-box border-primary px-4"
-							aria-label="Description"
-							rows={5}
-							placeholder="Description"
-							error={errors.description?.message}
-							{...register("description")}
-						/>
-
-						<Input
-							label="Requirements"
-							labelClassName={LABEL_CLASS}
-							className={FIELD_CLASS}
-							aria-label="Requirements"
-							placeholder="Requirements"
-							error={errors.requirements?.message}
-							{...register("requirements")}
-						/>
+						<OpportunityFormFields control={control} errors={errors} register={register} />
 
 						{submitError && (
 							<div role="alert" className="alert alert-error alert-soft text-sm">

@@ -20,6 +20,90 @@ async function testUserIds() {
 	return Promise.all((Object.keys(TEST_USERS) as TestUserKey[]).map(getUserId))
 }
 
+/**
+ * Removes the opportunities (events) those volunteers created, plus the posts, notifications and
+ * sign-ups that point at them. `events` is referenced with `onDelete: NoAction`, so the
+ * dependents have to go first — both here and before deleting the volunteers themselves.
+ */
+export async function deleteEventsCreatedBy(volunteerIds: string[]) {
+	const createdEvents = "SELECT id FROM events WHERE creator_id = ANY($1::uuid[])"
+
+	await pool.query(
+		`DELETE FROM notifications
+		 WHERE post_id IN (SELECT id FROM posts WHERE event_id IN (${createdEvents}))`,
+		[volunteerIds],
+	)
+	await pool.query(`DELETE FROM posts WHERE event_id IN (${createdEvents})`, [volunteerIds])
+	await pool.query(`DELETE FROM event_attendees WHERE event_id IN (${createdEvents})`, [volunteerIds])
+	await pool.query("DELETE FROM events WHERE creator_id = ANY($1::uuid[])", [volunteerIds])
+}
+
+/** Removes every opportunity the test users created. */
+export async function resetOpportunities() {
+	await deleteEventsCreatedBy(await testUserIds())
+}
+
+interface SeedOpportunity {
+	title: string
+	category?: string
+	description?: string
+	location?: string
+	startsAt?: Date
+	capacity?: number
+	requirements?: string | null
+}
+
+/**
+ * Inserts an opportunity for the test admin straight into the database, so the edit and delete
+ * specs don't depend on the create endpoint.
+ */
+export async function seedOpportunity({
+	title,
+	category = "Warehouse",
+	description = "Sort incoming donations",
+	location = "Melbourne",
+	startsAt = new Date("2026-12-01T09:00:00Z"),
+	capacity = 12,
+	requirements = "Closed shoes",
+}: SeedOpportunity) {
+	const adminId = await getUserId("admin")
+	const { rows: groups } = await pool.query<{ id: string }>(
+		`INSERT INTO volunteer_groups (name) VALUES ($1)
+		 ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
+		 RETURNING id`,
+		[category],
+	)
+	const { rows } = await pool.query<{ id: string }>(
+		`INSERT INTO events (
+		   creator_id, title, description, location, starts_at, capacity, requirements, status,
+		   "volunteerGroupId"
+		 )
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, 'OPEN', $8)
+		 RETURNING id`,
+		[adminId, title, description, location, startsAt, capacity, requirements, groups[0].id],
+	)
+
+	return rows[0].id
+}
+
+export async function getOpportunity(id: string) {
+	const { rows } = await pool.query<{
+		id: string
+		title: string
+		status: string
+		description: string
+		location: string | null
+		capacity: number | null
+		requirements: string | null
+		starts_at: Date | null
+	}>(
+		`SELECT id, title, status, description, location, capacity, requirements, starts_at
+		 FROM events WHERE id = $1`,
+		[id],
+	)
+	return rows[0]
+}
+
 /** Removes every announcement and notification involving the test users. */
 export async function resetAnnouncements() {
 	const ids = await testUserIds()

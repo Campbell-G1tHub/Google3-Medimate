@@ -1,6 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { ChevronDown, ChevronUp } from "lucide-react"
 import { OpportunityDetailsModal } from "@/components/opportunities/opportunity-details-modal"
 import { Button } from "@/components/ui/button"
 import { DropdownSelect } from "@/components/ui/dropdown-select"
@@ -13,6 +14,8 @@ import {
 	type OpportunitySort,
 } from "@/lib/validation/opportunity"
 import { CreateOpportunityDialog } from "./create-opportunity-dialog"
+import { DeleteOpportunityDialog } from "./delete-opportunity-dialog"
+import { EditOpportunityDialog } from "./edit-opportunity-dialog"
 
 const OPPORTUNITIES_API = "/api/admin/opportunities"
 
@@ -61,6 +64,102 @@ function matchesDateFilter(startsAt: string | null, filters: readonly string[]) 
 }
 
 /**
+ * The per-row "Manage" dropdown: the trigger plus the Edit/Delete actions. Closes on an outside
+ * press or Escape, handing focus back to the trigger the way a menu button is expected to.
+ */
+function ManageMenu({
+	opportunity,
+	onEdit,
+	onDelete,
+}: {
+	opportunity: AdminOpportunity
+	onEdit: () => void
+	onDelete: () => void
+}) {
+	const [isOpen, setIsOpen] = useState(false)
+	const containerRef = useRef<HTMLDivElement>(null)
+	const triggerRef = useRef<HTMLButtonElement>(null)
+
+	useEffect(() => {
+		if (!isOpen) {
+			return
+		}
+
+		function closeOnOutsidePress(event: PointerEvent) {
+			if (!containerRef.current?.contains(event.target as Node)) {
+				setIsOpen(false)
+			}
+		}
+
+		function closeOnEscape(event: KeyboardEvent) {
+			if (event.key === "Escape") {
+				setIsOpen(false)
+				triggerRef.current?.focus()
+			}
+		}
+
+		document.addEventListener("pointerdown", closeOnOutsidePress)
+		document.addEventListener("keydown", closeOnEscape)
+		return () => {
+			document.removeEventListener("pointerdown", closeOnOutsidePress)
+			document.removeEventListener("keydown", closeOnEscape)
+		}
+	}, [isOpen])
+
+	function choose(action: () => void) {
+		setIsOpen(false)
+		action()
+	}
+
+	return (
+		<div ref={containerRef} className="relative">
+			<Button
+				ref={triggerRef}
+				variant="accent"
+				size="small"
+				className="gap-1 px-3"
+				aria-haspopup="menu"
+				aria-expanded={isOpen}
+				aria-label={`Manage ${opportunity.role}`}
+				onClick={() => setIsOpen((open) => !open)}
+			>
+				Manage
+				{isOpen ? (
+					<ChevronUp aria-hidden="true" size={16} />
+				) : (
+					<ChevronDown aria-hidden="true" size={16} />
+				)}
+			</Button>
+
+			{isOpen && (
+				<div
+					role="menu"
+					aria-label={`Manage ${opportunity.role}`}
+					className="absolute right-0 z-20 mt-2 flex w-52 flex-col overflow-hidden rounded-2xl border-2 border-primary bg-base-100 py-1 text-left shadow-md"
+				>
+					<button
+						type="button"
+						role="menuitem"
+						className="w-full px-4 py-2 text-left text-sm font-semibold text-primary hover:bg-base-200"
+						onClick={() => choose(onEdit)}
+					>
+						Edit Opportunity
+					</button>
+					<button
+						type="button"
+						role="menuitem"
+						className="w-full px-4 py-2 text-left text-sm font-semibold text-accent hover:bg-base-200"
+						onClick={() => choose(onDelete)}
+					>
+						Delete Opportunity
+					</button>
+				</div>
+			)}
+		</div>
+	)
+}
+
+/**
  * Admin list of the opportunities the signed-in admin has created: search, category/location/date
  * filters and sorting, plus the entry point for creating a new opportunity.
  */
@@ -74,6 +173,8 @@ export function OpportunityList() {
 	const [sort, setSort] = useState<OpportunitySort>("newest")
 	const [isCreating, setIsCreating] = useState(false)
 	const [detailsFor, setDetailsFor] = useState<AdminOpportunity>()
+	const [editingFor, setEditingFor] = useState<AdminOpportunity>()
+	const [deletingFor, setDeletingFor] = useState<AdminOpportunity>()
 
 	const load = useCallback(async (signal?: AbortSignal) => {
 		const response = await fetch(OPPORTUNITIES_API, { signal })
@@ -281,15 +382,11 @@ export function OpportunityList() {
 									</span>
 								</div>
 								<div className="flex shrink-0 items-center gap-2">
-									{/* Manage/edit flows land in a follow-up. */}
-									<Button
-										variant="accent"
-										size="small"
-										className="px-4"
-										aria-label={`Manage ${opportunity.role}`}
-									>
-										Manage
-									</Button>
+									<ManageMenu
+										opportunity={opportunity}
+										onEdit={() => setEditingFor(opportunity)}
+										onDelete={() => setDeletingFor(opportunity)}
+									/>
 									<Button
 										variant="outline"
 										size="small"
@@ -323,6 +420,22 @@ export function OpportunityList() {
 
 			{isCreating && (
 				<CreateOpportunityDialog onClose={() => setIsCreating(false)} onCreated={refresh} />
+			)}
+
+			{editingFor && (
+				<EditOpportunityDialog
+					opportunity={editingFor}
+					onClose={() => setEditingFor(undefined)}
+					onSaved={refresh}
+				/>
+			)}
+
+			{deletingFor && (
+				<DeleteOpportunityDialog
+					opportunity={deletingFor}
+					onClose={() => setDeletingFor(undefined)}
+					onDeleted={refresh}
+				/>
 			)}
 		</section>
 	)

@@ -125,3 +125,10 @@ export const createOpportunitySchema = z.object({
 
 export type CreateOpportunityFormValues = z.input<typeof createOpportunitySchema>
 export type CreateOpportunityInput = z.output<typeof createOpportunitySchema>
+
+/** Editing sends every field back, so the create rules apply unchanged. */
+export const updateOpportunitySchema = createOpportunitySchema
+
+export type UpdateOpportunityInput = CreateOpportunityInput
+
+export const opportunityIdSchema = z.uuid("Opportunity ID must be a UUID")

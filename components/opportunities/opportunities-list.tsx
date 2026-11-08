@@ -94,9 +94,9 @@ function CheckIcon(props: SVGProps<SVGSVGElement>) {
 }
 function categoryFor(opportunity: Opportunity) {
 	const title = opportunity.title.toLowerCase()
-	if (title.includes("delivery")) return "Deliveries"
-	if (title.includes("warehouse")) return "Warehouses"
-	return "Community"
+	if (title.includes("delivery")) return "Logistics"
+	if (title.includes("warehouse")) return "Warehouse"
+	return "Community Engagement"
 }
 
 function DialogFrame({

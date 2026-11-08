@@ -1,5 +1,5 @@
 import Link from "next/link"
-import type { ButtonHTMLAttributes, ReactNode } from "react"
+import type { ButtonHTMLAttributes, ReactNode, Ref } from "react"
 
 const variantClasses = {
 	primary: "btn-primary",
@@ -24,6 +24,8 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	size?: keyof typeof sizeClasses
 	rounded?: boolean
 	variant?: keyof typeof variantClasses
+	/** Reaches the underlying `<button>`; not forwarded when the button renders as a link. */
+	ref?: Ref<HTMLButtonElement>
 }
 
 export function Button({
@@ -31,9 +33,10 @@ export function Button({
 	className,
 	disabled,
 	fullWidth = false,
-	to,
 	loading = false,
+	ref,
 	size = "medium",
+	to,
 	variant = "primary",
 	rounded = true,
 	...props
@@ -61,6 +64,7 @@ export function Button({
 
 	return (
 		<button
+			ref={ref}
 			type="button"
 			className={classes}
 			disabled={disabled || loading}

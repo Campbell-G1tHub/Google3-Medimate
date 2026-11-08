@@ -104,9 +104,9 @@ function VolunteerCheckIcon(props: SVGProps<SVGSVGElement>) {
 
 function categoryFor(event: EventCard) {
 	const value = event.title.toLowerCase()
-	if (value.includes("delivery")) return "Deliveries"
-	if (value.includes("warehouse")) return "Warehouses"
-	return "Community"
+	if (value.includes("delivery")) return "Logistics"
+	if (value.includes("warehouse")) return "Warehouse"
+	return "Community Engagement"
 }
 
 function EventCardView({
