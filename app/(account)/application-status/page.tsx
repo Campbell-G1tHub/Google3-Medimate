@@ -4,7 +4,7 @@ import Image from "next/image"
 import { redirect } from "next/navigation"
 import { BackToLoginButton } from "@/components/onboarding/back-to-login-button"
 import { auth } from "@/lib/auth"
-import { getApplicationStatus, hasAppAccess } from "@/lib/volunteer-access"
+import { getVolunteerAccess } from "@/lib/volunteer-access"
 
 export const metadata: Metadata = {
 	title: "Application status | MediMate",
@@ -16,15 +16,18 @@ export default async function ApplicationStatusPage() {
 	if (!session) {
 		redirect("/login")
 	}
-	if (!session.user.onboardingCompleted) {
+
+	const access = await getVolunteerAccess(session.user)
+
+	if (!access.onboardingCompleted) {
 		redirect("/onboarding")
 	}
 
-	if (await hasAppAccess(session.user)) {
+	if (access.hasAppAccess) {
 		redirect("/home")
 	}
 
-	const isRejected = (await getApplicationStatus(session.user.id)) === "REJECTED"
+	const isRejected = access.applicationStatus === "REJECTED"
 
 	return (
 		<div className="mx-auto flex w-full max-w-xl flex-col items-center gap-5 px-5 py-8 text-center">

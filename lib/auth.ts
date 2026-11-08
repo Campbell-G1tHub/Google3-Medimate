@@ -58,11 +58,6 @@ export const auth = betterAuth({
 			},
 		},
 		additionalFields: {
-			onboardingCompleted: {
-				type: "boolean",
-				defaultValue: false,
-				input: false,
-			},
 			role: {
 				type: "string",
 				defaultValue: "VOLUNTEER",
