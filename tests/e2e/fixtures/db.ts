@@ -75,3 +75,38 @@ export async function getNotifications(user: TestUserKey) {
 	)
 	return rows
 }
+
+type ApplicationStatus = "PENDING" | "APPROVED" | "REJECTED"
+
+export async function getApplication(user: TestUserKey) {
+	const { rows } = await pool.query<{
+		id: string
+		status: ApplicationStatus
+		reviewed_by_id: string | null
+		reviewed_at: Date | null
+	}>(
+		'SELECT id, status, reviewed_by_id, reviewed_at FROM "VolunteerInformation" WHERE volunteer_id = $1',
+		[await getUserId(user)],
+	)
+	if (!rows[0]) {
+		throw new Error(`Test user ${user} has no application`)
+	}
+	return rows[0]
+}
+
+/** Sets an application's status and clears any earlier review. */
+export async function setApplicationStatus(user: TestUserKey, status: ApplicationStatus) {
+	await pool.query(
+		`UPDATE "VolunteerInformation"
+		 SET status = $2::"ApplicationStatus", reviewed_at = NULL, reviewed_by_id = NULL
+		 WHERE volunteer_id = $1`,
+		[await getUserId(user), status],
+	)
+}
+
+export async function setApplicationSubmittedAt(user: TestUserKey, submittedAt: Date) {
+	await pool.query('UPDATE "VolunteerInformation" SET created_at = $2 WHERE volunteer_id = $1', [
+		await getUserId(user),
+		submittedAt,
+	])
+}

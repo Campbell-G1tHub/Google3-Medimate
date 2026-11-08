@@ -1,16 +1,16 @@
 import type { Metadata } from "next"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
-import { AnnouncementForm } from "@/components/admin/announcement-form"
+import { ApplicationList } from "@/components/admin/application-list"
 import { NotificationBell } from "@/components/notifications/notification-bell"
 import { auth } from "@/lib/auth"
-import { isAdmin } from "@/lib/roles"
+import { isAdmin } from "@/lib/auth-guards"
 
 export const metadata: Metadata = {
-	title: "Send announcements | MediMate",
+	title: "Volunteer applications | MediMate",
 }
 
-export default async function SendAnnouncementPage() {
+export default async function VolunteerApplicationsPage() {
 	const session = await auth.api.getSession({ headers: await headers() })
 
 	if (!isAdmin(session?.user)) {
@@ -24,7 +24,7 @@ export default async function SendAnnouncementPage() {
 				<NotificationBell />
 			</header>
 			<div className="px-5 py-6 sm:px-8">
-				<AnnouncementForm />
+				<ApplicationList />
 			</div>
 		</div>
 	)

@@ -37,6 +37,9 @@ cp .env.example .env      # required for host-side Prisma tooling (studio/migrat
 docker compose up --build -d
 ```
 
+By default, Docker will run services in developer mode (i.e under the developer profile).
+To build the app for testing, switch COMPOSE_PROFILES in .env to "prod".
+
 - App: http://localhost:3000
 - Postgres: `localhost:5432`
 - Mailpit inbox: http://localhost:8025

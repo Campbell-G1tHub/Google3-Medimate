@@ -8,18 +8,28 @@ export const TEST_USERS = {
 		email: "e2e-admin@medimate.test",
 		role: "ADMIN",
 		groups: [],
+		application: null,
 	},
 	boardVolunteer: {
 		name: "E2E Board Volunteer",
 		email: "e2e-board@medimate.test",
 		role: "VOLUNTEER",
 		groups: ["Board member"],
+		application: "APPROVED",
 	},
 	fundraisingVolunteer: {
 		name: "E2E Fundraising Volunteer",
 		email: "e2e-fundraising@medimate.test",
 		role: "VOLUNTEER",
 		groups: ["Fundraising"],
+		application: "APPROVED",
+	},
+	pendingVolunteer: {
+		name: "E2E Pending Volunteer",
+		email: "e2e-pending@medimate.test",
+		role: "VOLUNTEER",
+		groups: [],
+		application: "PENDING",
 	},
 } as const
 

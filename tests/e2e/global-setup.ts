@@ -38,6 +38,7 @@ async function removeTestUsers() {
 	await pool.query("DELETE FROM volunteer_group_preferences WHERE volunteer_id = ANY($1::uuid[])", [
 		ids,
 	])
+	await pool.query('DELETE FROM "VolunteerInformation" WHERE volunteer_id = ANY($1::uuid[])', [ids])
 	await pool.query("DELETE FROM sessions WHERE user_id = ANY($1::uuid[])", [ids])
 	await pool.query("DELETE FROM accounts WHERE user_id = ANY($1::uuid[])", [ids])
 	await pool.query("DELETE FROM verifications WHERE identifier LIKE ANY($1::text[])", [
@@ -57,7 +58,7 @@ async function signUp(api: APIRequestContext, key: TestUserKey) {
 	}
 }
 
-/** Skips email verification and onboarding, then applies the role and groups. */
+/** Skips email verification and onboarding, then applies the role, application and groups. */
 async function prepareUser(key: TestUserKey) {
 	const user = TEST_USERS[key]
 	const { rows } = await pool.query<{ id: string }>(
@@ -68,6 +69,21 @@ async function prepareUser(key: TestUserKey) {
 		[user.email, user.role],
 	)
 	const userId = rows[0].id
+
+	if (user.application) {
+		const [firstName, ...lastName] = user.name.split(" ")
+		await pool.query(
+			`INSERT INTO "VolunteerInformation" (
+			   volunteer_id, first_name, last_name, address, mobile, date_of_birth, motivation,
+			   skills_and_strengths, frequency, availability, agreement_accepted, police_check_consent,
+			   newsletter_opt_in, referral_sources, status
+			 )
+			 VALUES ($1, $2, $3, '1 Test Street, Melbourne VIC 3000', '0412 345 678', '1995-01-01',
+			   'Helping out', 'Sorting', 'weekly', 'immediately', true, true, false, 'other',
+			   $4::"ApplicationStatus")`,
+			[userId, firstName, lastName.join(" "), user.application],
+		)
+	}
 
 	for (const groupName of user.groups) {
 		const group = await pool.query<{ id: string }>(

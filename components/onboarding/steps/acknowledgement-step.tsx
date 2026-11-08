@@ -27,7 +27,7 @@ const REFERRAL_SOURCE_ERROR_ID = "referralSources-error"
  * reads it in place, with a link underneath for browsers that will not render a PDF
  * inside a frame.
  */
-export function AcknowledgementStep() {
+export function AcknowledgementStep({ showAgreement = true }: { showAgreement?: boolean }) {
 	const {
 		formState: { errors },
 		register,
@@ -44,21 +44,25 @@ export function AcknowledgementStep() {
 
 			<section className="mt-8">
 				<h3 className="text-sm font-semibold text-neutral">{AGREEMENT_QUESTION}</h3>
-				<iframe
-					className="ml-[50%] -translate-x-1/2 mt-4 h-160 w-full md:w-3xl rounded-box border border-base-300 bg-base-200"
-					src={VOLUNTEER_AGREEMENT_URL}
-					title="Medical Pantry Volunteer Agreement"
-				/>
-				<p className="mt-2 text-sm">
-					<a
-						className="link link-secondary"
-						href={VOLUNTEER_AGREEMENT_URL}
-						target="_blank"
-						rel="noreferrer"
-					>
-						Open the Volunteer Agreement in a new tab
-					</a>
-				</p>
+				{showAgreement && (
+					<>
+						<iframe
+							className="ml-[50%] -translate-x-1/2 mt-4 h-160 w-full md:w-3xl rounded-box border border-base-300 bg-base-200"
+							src={VOLUNTEER_AGREEMENT_URL}
+							title="Medical Pantry Volunteer Agreement"
+						/>
+						<p className="mt-2 text-sm">
+							<a
+								className="link link-secondary"
+								href={VOLUNTEER_AGREEMENT_URL}
+								target="_blank"
+								rel="noreferrer"
+							>
+								Open the Volunteer Agreement in a new tab
+							</a>
+						</p>
+					</>
+				)}
 				{/* The question above the agreement is this group's visible label, so the
 				    legend repeats it for screen readers only. */}
 				<RadioGroup
