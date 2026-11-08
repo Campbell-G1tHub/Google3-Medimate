@@ -24,11 +24,12 @@ function useIsMobile() {
 interface SendToSelectProps {
 	value: string[]
 	onChange: (value: string[]) => void
+	type: string
 	onBlur?: () => void
 	error?: string
 }
 
-export function SendToSelect({ value, onChange, onBlur, error }: SendToSelectProps) {
+export function SendToSelect({ value, onChange, onBlur, error, type }: SendToSelectProps) {
 	const isMobile = useIsMobile()
 
 	// "All volunteers" and specific groups are mutually exclusive.
@@ -56,7 +57,7 @@ export function SendToSelect({ value, onChange, onBlur, error }: SendToSelectPro
 			onToggleOption={(option, checked) => toggle(option.value, checked)}
 			onBlur={onBlur}
 			error={error}
-			flip={isMobile}
+			flip={isMobile || type === "OPPORTUNITY"}
 			placeholder="Select category or all volunteers"
 		/>
 	)

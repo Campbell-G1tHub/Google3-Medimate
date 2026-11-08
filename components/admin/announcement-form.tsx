@@ -201,6 +201,7 @@ export function AnnouncementForm() {
 					render={({ field, fieldState }) => (
 						<SendToSelect
 							value={field.value}
+							type={type}
 							onChange={field.onChange}
 							onBlur={field.onBlur}
 							error={fieldState.error?.message}
