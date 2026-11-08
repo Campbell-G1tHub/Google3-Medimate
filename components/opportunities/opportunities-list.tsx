@@ -9,6 +9,7 @@ import {
 import { OpportunityDetailsModal } from "@/components/opportunities/opportunity-details-modal"
 import { Button } from "@/components/ui/button"
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select"
+import { opportunityCategoryFor } from "@/lib/opportunities"
 
 export interface Opportunity {
 	id: string
@@ -93,10 +94,7 @@ function CheckIcon(props: SVGProps<SVGSVGElement>) {
 	)
 }
 function categoryFor(opportunity: Opportunity) {
-	const title = opportunity.title.toLowerCase()
-	if (title.includes("delivery")) return "Logistics"
-	if (title.includes("warehouse")) return "Warehouse"
-	return "Community Engagement"
+	return opportunityCategoryFor(opportunity.title)
 }
 
 function DialogFrame({

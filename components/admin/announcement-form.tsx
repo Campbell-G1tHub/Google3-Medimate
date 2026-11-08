@@ -15,6 +15,7 @@ import {
 	describeAudience,
 } from "@/lib/validation/announcement"
 import { SendToSelect } from "./send-to-select"
+import { OpportunityLinkPicker } from "./opportunity-link-picker"
 
 const SEND_ANNOUNCEMENT_API = "/api/admin/send-announcement"
 
@@ -23,6 +24,7 @@ const DEFAULT_VALUES: AnnouncementFormValues = {
 	subject: "",
 	message: "",
 	link: "",
+	eventId: "",
 	sendTo: [],
 }
 
@@ -63,6 +65,10 @@ export function AnnouncementForm() {
 		if (type !== "NEWSLETTER") {
 			setValue("link", "")
 			clearErrors("link")
+		}
+		if (type !== "OPPORTUNITY") {
+			setValue("eventId", "")
+			clearErrors("eventId")
 		}
 	}, [type, setValue, clearErrors])
 
@@ -161,6 +167,21 @@ export function AnnouncementForm() {
 					{...register("message")}
 				/>
 
+				{type === "OPPORTUNITY" && (
+					<Controller
+						control={control}
+						name="eventId"
+						render={({ field, fieldState }) => (
+							<OpportunityLinkPicker
+								value={field.value && field.value.length > 0 ? field.value : undefined}
+								onChange={field.onChange}
+								onBlur={field.onBlur}
+								error={fieldState.error?.message}
+							/>
+						)}
+					/>
+				)}
+
 				{type === "NEWSLETTER" && (
 					<Input
 						label="Link Newsletter"
@@ -180,6 +201,7 @@ export function AnnouncementForm() {
 					render={({ field, fieldState }) => (
 						<SendToSelect
 							value={field.value}
+							type={type}
 							onChange={field.onChange}
 							onBlur={field.onBlur}
 							error={fieldState.error?.message}

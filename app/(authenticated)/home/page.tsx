@@ -11,6 +11,7 @@ import { OpportunityDetailsModal } from "@/components/opportunities/opportunity-
 import { Button } from "@/components/ui/button"
 import { useSession } from "@/lib/auth-client"
 import { isAdmin } from "@/lib/roles"
+import { opportunityCategoryFor } from "@/lib/opportunities"
 
 type EventCard = {
 	id: string
@@ -103,10 +104,7 @@ function VolunteerCheckIcon(props: SVGProps<SVGSVGElement>) {
 }
 
 function categoryFor(event: EventCard) {
-	const value = event.title.toLowerCase()
-	if (value.includes("delivery")) return "Logistics"
-	if (value.includes("warehouse")) return "Warehouse"
-	return "Community Engagement"
+	return opportunityCategoryFor(event.title)
 }
 
 function EventCardView({
