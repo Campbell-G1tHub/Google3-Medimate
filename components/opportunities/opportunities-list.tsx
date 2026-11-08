@@ -209,19 +209,23 @@ export function OpportunitiesList({
 					activeView === "attended"
 						? opportunity.signedUp
 						: opportunity.status === "OPEN" && !opportunity.signedUp
+
 				const matchesSearch =
 					!needle ||
 					[opportunity.title, opportunity.description, opportunity.location]
 						.filter(Boolean)
 						.some((value) => value?.toLowerCase().includes(needle))
+
 				const matchesCategory =
 					categories.length === 0 ||
 					categories.some((item) =>
 						categoryFor(opportunity).toLowerCase().startsWith(item.toLowerCase()),
 					)
+
 				const matchesLocation =
 					locationsFilter.length === 0 ||
 					locationsFilter.includes(opportunity.location ?? "")
+
 				const eventDate = opportunity.startsAt ? new Date(opportunity.startsAt) : undefined
 				const today = new Date()
 				const dayDifference = eventDate

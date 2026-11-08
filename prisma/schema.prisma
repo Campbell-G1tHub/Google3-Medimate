@@ -252,6 +252,9 @@ model Event {
   location         String?
   startsAt         DateTime?       @map("starts_at") @db.Timestamptz(0)
   endsAt           DateTime?       @map("ends_at") @db.Timestamptz(0)
+  capacity         Int?
+  /// Free-text requirements shown to volunteers, e.g. "Car · Driver licence".
+  requirements     String?
   status           String          @default("OPEN") @db.VarChar(255)
   createdTime      DateTime        @default(now()) @map("created_time") @db.Timestamptz(0)
   updatedTime      DateTime        @default(now()) @map("updated_time") @db.Timestamptz(0)
