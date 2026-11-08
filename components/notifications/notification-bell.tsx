@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
 import type { NotificationItem } from "@/lib/announcements"
+import { formatTimeAgo } from "@/lib/relative-time"
 import { ANNOUNCEMENT_TYPE_OPTIONS } from "@/lib/validation/announcement"
 import { usePushSubscription } from "./use-push-subscription"
 
@@ -13,23 +14,6 @@ const REFRESH_INTERVAL_MS = 60_000
 const TYPE_LABELS = Object.fromEntries(
 	ANNOUNCEMENT_TYPE_OPTIONS.map((option) => [option.value, option.label]),
 )
-
-const relativeTime = new Intl.RelativeTimeFormat("en-AU", { numeric: "auto" })
-const TIME_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
-	["day", 86_400_000],
-	["hour", 3_600_000],
-	["minute", 60_000],
-]
-
-function formatTimeAgo(iso: string) {
-	const elapsed = new Date(iso).getTime() - Date.now()
-	for (const [unit, ms] of TIME_UNITS) {
-		if (Math.abs(elapsed) >= ms) {
-			return relativeTime.format(Math.round(elapsed / ms), unit)
-		}
-	}
-	return "just now"
-}
 
 async function postJson<T>(url: string, body: unknown = {}): Promise<T> {
 	const response = await fetch(url, {

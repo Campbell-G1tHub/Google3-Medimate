@@ -26,10 +26,10 @@ export async function createAnnouncement(authorId: string, input: AnnouncementIn
 				...(input.sendToAll
 					? {}
 					: {
-							volunteerGroupPreferences: {
-								some: { groupId: { in: groups.map((group) => group.id) } },
-							},
-						}),
+						volunteerGroupPreferences: {
+							some: { groupId: { in: groups.map((group) => group.id) } },
+						},
+					}),
 			},
 			select: { id: true },
 		})
@@ -67,26 +67,46 @@ export async function listNotifications(volunteerId: string) {
 			where: { volunteerId },
 			orderBy: { createdAt: "desc" },
 			take: NOTIFICATION_PAGE_SIZE,
-			include: { post: true },
+			include: {
+				post: {
+					// Opportunity announcements point at the event the inbox modal opens.
+					include: { origin: { include: { attendees: { where: { volunteerId } } } } },
+				},
+			},
 		}),
 		countUnreadNotifications(volunteerId),
 	])
 
 	return {
 		unreadCount,
-		notifications: notifications.map((notification) => ({
-			id: notification.id,
-			readAt: notification.readAt?.toISOString() ?? null,
-			createdAt: notification.createdAt.toISOString(),
-			announcement: {
-				id: notification.post.id,
-				type: notification.post.type,
-				subject: notification.post.title,
-				message: notification.post.body,
-				link: notification.post.link,
-				eventId: notification.post.eventId,
-			},
-		})),
+		notifications: notifications.map((notification) => {
+			const event = notification.post.origin
+
+			return {
+				id: notification.id,
+				readAt: notification.readAt?.toISOString() ?? null,
+				createdAt: notification.createdAt.toISOString(),
+				announcement: {
+					id: notification.post.id,
+					type: notification.post.type,
+					subject: notification.post.title,
+					message: notification.post.body,
+					link: notification.post.link,
+				},
+				event: event
+					? {
+						id: event.id,
+						title: event.title,
+						description: event.description,
+						location: event.location,
+						startsAt: event.startsAt?.toISOString() ?? null,
+						endsAt: event.endsAt?.toISOString() ?? null,
+						status: event.status,
+						signedUp: event.attendees.length > 0,
+					}
+					: null,
+			}
+		}),
 	}
 }
 
