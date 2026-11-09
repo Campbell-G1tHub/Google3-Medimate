@@ -13,7 +13,7 @@ export default async function Page({ searchParams }: PageProps) {
   return (
     <AuthShell title="Please check your email" description={description}>
       <div className="flex justify-center">
-        <Button variant="accent" className="rounded-full shadow-none">Back to Login</Button>
+        <Button to="/login" variant="accent" className="rounded-full shadow-none">Back to Login</Button>
       </div>
     </AuthShell>
   )
