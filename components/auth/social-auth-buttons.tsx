@@ -31,8 +31,8 @@ export function SocialAuthButtons({ action, enabledProviders, onError }: SocialA
 		try {
 			const result = await signIn.social({
 				provider,
-				callbackURL: "/account",
-				newUserCallbackURL: "/account",
+				callbackURL: "/home",
+				newUserCallbackURL: "/home",
 				errorCallbackURL: action === "Sign up" ? "/sign-up" : "/login",
 			})
 
