@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { formatOpportunityDateTime } from "@/components/opportunities/opportunity-card-base"
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select"
-import { opportunityCategoryFor } from "@/lib/opportunities"
+import { opportunityCategoryFor } from "@/lib/opportunity-category"
 import {Check} from "lucide-react"
 
 interface OpportunityOption {

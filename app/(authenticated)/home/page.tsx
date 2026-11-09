@@ -11,7 +11,7 @@ import { OpportunityDetailsModal } from "@/components/opportunities/opportunity-
 import { Button } from "@/components/ui/button"
 import { useSession } from "@/lib/auth-client"
 import { isAdmin } from "@/lib/roles"
-import { opportunityCategoryFor } from "@/lib/opportunities"
+import { opportunityCategoryFor } from "@/lib/opportunity-category"
 
 type EventCard = {
 	id: string

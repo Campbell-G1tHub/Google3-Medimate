@@ -9,7 +9,7 @@ import {
 import { OpportunityDetailsModal } from "@/components/opportunities/opportunity-details-modal"
 import { Button } from "@/components/ui/button"
 import { DropdownSelect, type DropdownOption } from "@/components/ui/dropdown-select"
-import { opportunityCategoryFor } from "@/lib/opportunities"
+import { opportunityCategoryFor } from "@/lib/opportunity-category"
 
 export interface Opportunity {
 	id: string
