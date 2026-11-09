@@ -2,16 +2,16 @@ This is our group repository for Google3 IT Project working on: MediMate for Med
 
 # Development Tips:
 - Branches are cheap, merge conflicts are not - separate logical features into individual branches (i.e feat/add-new-auth-method)
-- When on a feature branch, frequently **rebase** with main (rather than merge to ensure clean git history). 
+- When on a feature branch, frequently **rebase** with the development branch (rather than merge to ensure clean git history). 
 Example
 ```
-git switch main
+git switch development
 git pull
 git switch feat/add-new-auth-method
-git rebase origin/main
+git rebase origin/development
 git push --force-with-lease
 ```
-The force flag is incredibly important as it ensures your commits remain contiguous rather than fragmented and mixed with commits from main.
+The force flag is incredibly important as it ensures your commits remain contiguous rather than fragmented and mixed with commits from the development branch.
 
 - Try follow these [standards](https://www.conventionalcommits.org/en/v1.0.0/) standards for commits 
 Example
